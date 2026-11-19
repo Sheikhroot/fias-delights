@@ -7,7 +7,7 @@
 <meta name="description" content="Fia's Delights, Chiniot — homemade desserts & savory. Puddle Cake, Brownies, Brookies, Chicken Buns & Wraps. Order on WhatsApp. Delivery Rs. 150 in city.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@600;700&family=Manrope:wght@500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{
@@ -17,26 +17,37 @@
     --card:#ffffff; --line:#f0ddd2;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{font-family:'Poppins',sans-serif; background:var(--cream); color:var(--ink);}
-  header{background:linear-gradient(135deg,var(--choc-900),var(--choc) 55%,var(--choc-600)); color:#fff; position:sticky; top:0; z-index:200; box-shadow:0 2px 12px rgba(59,28,13,.35);}
+  body{font-family:'Manrope','Poppins',sans-serif; background:var(--cream); color:var(--ink);}
+  header{background:var(--cream); color:var(--choc-900); position:sticky; top:0; z-index:200; border-bottom:1px solid var(--line); box-shadow:0 2px 10px rgba(59,28,13,.06);}
   .header-in{max-width:1200px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
-  .logo{font-family:'Great Vibes',cursive; font-size:34px; line-height:1; color:#ffd9e4; text-shadow:0 2px 6px rgba(0,0,0,.3);}
-  .tagline{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--pink-mid); margin-top:2px;}
+  .logo{font-family:'Great Vibes',cursive; font-size:36px; line-height:1; color:var(--pink);}
+  .tagline{font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--choc); margin-top:3px; font-family:'Poppins',sans-serif; font-weight:600;}
+  .order-now{background:var(--pink); color:#fff; border:none; padding:10px 22px; border-radius:999px; font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;}
+  .order-now:hover{background:var(--pink-dark);}
   .admin-link{background:transparent; border:1px solid rgba(255,255,255,.5); color:#fff; padding:6px 12px; border-radius:20px; cursor:pointer; font-family:'Poppins',sans-serif; font-size:12px;}
   .admin-link:hover{border-color:var(--pink-mid); color:var(--pink-mid);}
-  .hero{background:linear-gradient(180deg,#fff3e6, var(--cream)); border-bottom:3px solid var(--pink-soft); padding:18px 16px 8px; text-align:center;}
-  .hero h1{font-family:'Great Vibes',cursive; font-weight:400; font-size:40px; color:var(--choc);}
-  .hero p{color:var(--muted); font-size:13px; margin-top:4px;}
-  .chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px auto 10px; max-width:700px;}
+  .hero{background:linear-gradient(180deg,var(--cream), var(--pink-soft)); border-bottom:1px solid var(--line); padding:26px 16px 14px;}
+  .hero-in{max-width:1200px; margin:0 auto; display:flex; gap:36px; align-items:center; flex-wrap:wrap;}
+  .hero-txt{flex:1 1 420px; min-width:290px;}
+  .eyebrow{display:inline-block; background:#fff; border:1px solid var(--line); color:var(--pink-dark); font-family:'Poppins',sans-serif; font-weight:600; font-size:11px; letter-spacing:2px; padding:6px 13px; border-radius:999px; margin-bottom:14px;}
+  .hero h1{font-family:'Playfair Display',serif; font-weight:700; font-size:42px; line-height:1.15; color:var(--choc-900);}
+  .hero h1 .hl{color:var(--pink);}
+  .hero-txt p{color:var(--muted); font-size:14.5px; line-height:1.6; margin-top:12px; max-width:520px;}
+  .hero-img{flex:1 1 380px; min-width:290px; position:relative;}
+  .hero-img img{width:100%; height:340px; object-fit:cover; border-radius:170px 170px 20px 20px; border:5px solid #fff; box-shadow:0 18px 40px rgba(59,28,13,.18); display:block;}
+  .hero-badge{position:absolute; left:20px; bottom:22px; background:#fff; border-radius:14px; padding:9px 16px; box-shadow:0 10px 24px rgba(59,28,13,.16);}
+  .hero-badge b{font-family:'Poppins',sans-serif; font-size:13.5px; color:var(--choc-900); display:block;}
+  .hero-badge span{color:var(--pink-dark); font-family:'Poppins',sans-serif; font-weight:700; font-size:13px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 4px;}
   .chip{background:#fff; border:1px solid var(--line); border-radius:20px; padding:6px 14px; font-size:12.5px; font-weight:500; color:var(--choc); box-shadow:0 1px 4px rgba(90,45,22,.06);}
   .chip b{color:var(--pink-dark);}
   .layout{max-width:1200px; margin:0 auto; padding:10px 16px 40px; display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap;}
   .menu-side{flex:1 1 620px; min-width:300px;}
-  .cat-title{font-family:'Great Vibes',cursive; font-weight:400; font-size:34px; color:var(--choc); margin:22px 0 4px;}
-  .cat-sub{font-size:12px; color:var(--muted); margin-bottom:14px;}
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px;}
-  .item{background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:0 3px 10px rgba(90,45,22,.06); display:flex; flex-direction:row;}
-  .item .photo{width:118px; min-width:118px; background:linear-gradient(135deg,var(--pink-soft),#fbd3de); display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .cat-title{font-family:'Playfair Display',serif; font-weight:700; font-size:31px; color:var(--choc-900); margin:24px 0 2px;}
+  .cat-sub{font-family:'Great Vibes',cursive; font-size:23px; color:var(--pink); margin-bottom:14px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(235px,1fr)); gap:14px;}
+  .item{background:var(--card); border:1px solid var(--line); border-radius:20px; overflow:hidden; box-shadow:0 3px 10px rgba(90,45,22,.06); display:flex; flex-direction:column;}
+  .item .photo{width:100%; height:165px; background:linear-gradient(135deg,var(--pink-soft),#fbd3de); display:flex; align-items:center; justify-content:center; overflow:hidden;}
   .item .photo img{width:100%; height:100%; object-fit:cover;}
   .item .photo .initial{font-family:'Great Vibes',cursive; font-size:40px; color:var(--pink);}
   .buy-row{display:flex; gap:8px; align-items:stretch; margin-top:auto;}
@@ -51,8 +62,8 @@
   .item .size{font-size:12px; color:var(--muted);}
   .item .price{font-size:16px; font-weight:700; color:var(--pink-dark); margin:6px 0 10px;}
   .item .unavail{font-size:12px; color:#b0a29a; font-weight:600; margin:6px 0 10px;}
-  .add-btn{flex:1; background:var(--choc); color:#fff; border:none; padding:10px; border-radius:10px; font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;}
-  .add-btn:hover{background:var(--choc-600);}
+  .add-btn{flex:1; background:var(--pink); color:#fff; border:none; padding:10px; border-radius:10px; font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;}
+  .add-btn:hover{background:var(--pink-dark);}
   .stepper{margin-top:auto; display:flex; align-items:center; justify-content:space-between; background:var(--pink-soft); border-radius:10px; padding:4px;}
   .stepper button{width:38px; height:34px; border:none; border-radius:8px; background:var(--pink); color:#fff; font-size:18px; font-weight:700; cursor:pointer;}
   .stepper span{font-weight:700; color:var(--choc-900);}
@@ -75,11 +86,11 @@
   .review-card{border:1px solid var(--line); border-radius:10px; padding:11px 13px; margin-bottom:9px; font-size:13.5px; background:#fff;}
   .review-card p{margin-top:4px; color:var(--choc);}
   .review-head{display:flex; justify-content:space-between; align-items:center; gap:10px;}
-  .review-stars{color:#f5a623; font-size:14px; letter-spacing:2px; white-space:nowrap;}
+  .review-stars{color:var(--gold); font-size:14px; letter-spacing:2px; white-space:nowrap;}
   .review-form input,.review-form textarea{width:100%; padding:11px; margin-bottom:9px; border:1px solid var(--line); border-radius:10px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);}
   .stars{margin:2px 0 10px;}
   .stars span{font-size:28px; cursor:pointer; color:#ddd; line-height:1;}
-  .stars span.on{color:#f5a623;}
+  .stars span.on{color:var(--gold);}
   .checkout{margin-top:16px;}
   .checkout input,.checkout textarea{width:100%; padding:11px; margin-bottom:9px; border:1px solid var(--line); border-radius:10px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);}
   .checkout input:focus,.checkout textarea:focus{outline:2px solid var(--pink-mid); border-color:transparent;}
@@ -123,6 +134,22 @@
   .loc-actions{display:flex; gap:8px; margin-top:9px;}
   .loc-actions .btn{flex:1;}
   .back-link{display:inline-block; margin-bottom:6px; color:var(--pink-dark); font-size:13px; cursor:pointer; background:none; border:none; font-family:'Poppins',sans-serif;}
+  /* Redesign 19 Nov 2026 — steps + loyalty band + section titles */
+  .sec-title{font-family:'Playfair Display',serif; font-weight:700; font-size:30px; color:var(--choc-900); text-align:center;}
+  .steps-wrap{max-width:1200px; margin:0 auto; padding:6px 16px 4px;}
+  .steps-head{text-align:center; margin-bottom:18px;}
+  .steps-head .script{font-family:'Great Vibes',cursive; font-size:28px; color:var(--pink); line-height:1;}
+  .steps-head h2{font-family:'Playfair Display',serif; font-weight:700; font-size:30px; color:var(--choc-900); margin-top:2px;}
+  .steps{display:flex; gap:16px; flex-wrap:wrap;}
+  .step{flex:1 1 260px; background:var(--pink-soft); border-radius:20px; padding:22px 24px;}
+  .step .n{width:36px; height:36px; border-radius:50%; background:var(--pink); color:#fff; font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; margin-bottom:11px;}
+  .step b{font-family:'Poppins',sans-serif; font-size:15.5px; color:var(--choc-900); display:block; margin-bottom:5px;}
+  .step p{font-size:13.5px; color:var(--muted); line-height:1.55;}
+  .loyal-panel{background:var(--choc-900) !important; border:none !important; border-radius:22px !important; padding:26px 22px !important;}
+  .loyal-panel h3{color:#fff; font-family:'Playfair Display',serif; font-size:23px;}
+  .loyal-panel p{color:#e8cdbb;}
+  .loyal-panel p b{color:#fff;}
+  @media (max-width:760px){ .hero h1{font-size:33px;} .hero-img img{height:270px;} }
 </style>
 </head>
 <body>
@@ -131,19 +158,29 @@
   <div class="header-in">
     <div>
       <div class="logo">Fia's Delights</div>
-      <div class="tagline">Your Daily Dose of Sweetness</div>
+      <div class="tagline">Homemade · Chiniot</div>
     </div>
+    <button class="order-now" onclick="document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">Order Now</button>
   </div>
 </header>
 
 <div id="shopView">
   <div class="hero">
-    <h1>Homemade with Love in Chiniot</h1>
-    <p>Fresh desserts &amp; savory, made to order at home.</p>
-    <div class="chips">
-      <div class="chip">Delivery <b>Rs. 150</b> in city</div>
-      <div class="chip">Order <b>2 hours</b> in advance</div>
-      <div class="chip">Order on <b>WhatsApp</b></div>
+    <div class="hero-in">
+      <div class="hero-txt">
+        <span class="eyebrow">FRESH FROM A HOME KITCHEN</span>
+        <h1>Homemade Desserts, <span class="hl">Baked With Love</span> in Chiniot</h1>
+        <p>Puddle cakes, fudgy brownies, brookies and fresh buns — made at home, to order. Pick your treats, order on WhatsApp, and pay easily with Easypaisa.</p>
+        <div class="chips">
+          <div class="chip">Delivery <b>Rs. 150</b> in city</div>
+          <div class="chip">Order <b>2 hours</b> in advance</div>
+          <div class="chip">Order on <b>WhatsApp</b></div>
+        </div>
+      </div>
+      <div class="hero-img">
+        <img src="images/puddle-cake.jpg" alt="Puddle Cake — Fia's Delights">
+        <div class="hero-badge"><b>Puddle Cake</b><span>Rs. 450</span></div>
+      </div>
     </div>
     <div class="search-box">
       <input type="text" id="menuSearch" placeholder="Search menu — e.g. brownies, wrap…" oninput="applySearch()">
@@ -152,12 +189,12 @@
 
   <div class="layout">
     <div class="menu-side">
-      <h2 class="cat-title" id="dessertTitle">Dessert Menu</h2>
-      <div class="cat-sub" id="dessertSub">Sweet endings, baked fresh</div>
+      <h2 class="cat-title" id="dessertTitle">Desserts</h2>
+      <div class="cat-sub" id="dessertSub">sweet things — baked fresh</div>
       <div class="grid" id="dessertGrid"><p class="empty">Loading menu…</p></div>
 
-      <h2 class="cat-title" id="savoryTitle">Savory Menu</h2>
-      <div class="cat-sub" id="savorySub">Delicious bites, happy vibes</div>
+      <h2 class="cat-title" id="savoryTitle">Savory</h2>
+      <div class="cat-sub" id="savorySub">fresh &amp; warm — straight from the oven</div>
       <div class="grid" id="savoryGrid"><p class="empty">Loading menu…</p></div>
       <p class="empty" id="noResults" style="display:none;">No items match your search.</p>
     </div>
@@ -211,8 +248,17 @@
     </div>
   </div>
 
+  <div class="steps-wrap">
+    <div class="steps-head"><div class="script">easy as 1-2-3</div><h2>How Ordering Works</h2></div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><b>Pick your treats</b><p>Add desserts and savory items to your cart — order at least 2 hours ahead so everything is baked fresh.</p></div>
+      <div class="step"><div class="n">2</div><b>Order on WhatsApp</b><p>Your order opens in WhatsApp with everything listed. Pay with Easypaisa — Ameer Umar Chaman, 0345 7703800.</p></div>
+      <div class="step"><div class="n">3</div><b>Delivered at your door</b><p>In-city Chiniot delivery for just Rs. 150. Fresh, warm and right on time.</p></div>
+    </div>
+  </div>
+
   <div class="reviews-wrap" style="padding-bottom:0;">
-    <div class="panel" style="text-align:center;">
+    <div class="panel loyal-panel" style="text-align:center;">
       <h3 style="margin-top:0;">🎁 Fia's Loyalty — Stamps</h3>
       <p style="font-size:13.5px;">Har order par <b>1 stamp</b> milta hai. <b>10 stamps</b> mukammal hone par aik <b>SURPRISE GIFT</b>!</p>
       <p style="font-size:13.5px; margin-top:6px;">Dost ko refer karein: dost apne pehle order par aap ka mobile number referral code mein dale to use <b>Rs. 50 off</b> milega — aur aap ko <b>1 extra stamp</b>!</p>
