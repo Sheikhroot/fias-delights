@@ -215,7 +215,7 @@
     <div class="panel" style="text-align:center;">
       <h3 style="margin-top:0;">🎁 Fia's Loyalty — Stamps</h3>
       <p style="font-size:13.5px;">Har order par <b>1 stamp</b> milta hai. <b>10 stamps</b> mukammal hone par aik <b>SURPRISE GIFT</b>!</p>
-      <p style="font-size:13.5px; margin-top:6px;">Dost ko refer karein: dost apne pehle order par aap ka mobile number referral code mein dale to use <b>Rs. 100 off</b> milega — aur aap ko <b>1 extra stamp</b>!</p>
+      <p style="font-size:13.5px; margin-top:6px;">Dost ko refer karein: dost apne pehle order par aap ka mobile number referral code mein dale to use <b>Rs. 50 off</b> milega — aur aap ko <b>1 extra stamp</b>!</p>
       <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
         <input type="tel" id="loyPhone" placeholder="Apna mobile number" style="padding:11px; border:1px solid var(--line); border-radius:10px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);">
         <button class="btn pink" onclick="checkStamps()">Mere stamps dekhein</button>
@@ -545,7 +545,7 @@ window.submitReview = async function(){
 };
 
 /* ===== Referral + Loyalty (stamps) ===== */
-const REFERRAL_DISCOUNT = 100;
+const REFERRAL_DISCOUNT = 50;
 const STAMPS_FOR_GIFT = 10;
 function normPhone(p){
   p = (p || "").replace(/\D/g, "");
