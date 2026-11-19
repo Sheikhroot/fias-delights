@@ -566,12 +566,12 @@ function resizeImage(file){
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(url);
-      const max = 900;
+      const max = 800;
       let w = img.width, h = img.height;
       if(w > max || h > max){ const s = max / Math.max(w, h); w = Math.round(w*s); h = Math.round(h*s); }
       const c = document.createElement("canvas"); c.width = w; c.height = h;
       c.getContext("2d").drawImage(img, 0, 0, w, h);
-      c.toBlob(b => b ? resolve(b) : reject(new Error("photo process nahi hui")), "image/jpeg", 0.85);
+      c.toBlob(b => b ? resolve(b) : reject(new Error("photo process nahi hui")), "image/jpeg", 0.8);
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("photo khul nahi saki")); };
     img.src = url;
@@ -581,16 +581,19 @@ window.pickPhoto = async function(input){
   const msg = document.getElementById("upMsg");
   const file = input.files && input.files[0];
   if(!file) return;
-  const b = backend();
-  if(!b || !b.uploadPhoto){ msg.textContent = "Setup abhi baqi hai — upload connect nahi hua."; return; }
-  msg.textContent = "Photo upload ho raha hai…";
+  msg.textContent = "Photo tayyar ho raha hai…";
   try {
     const blob = await resizeImage(file);
-    const url = await b.uploadPhoto(blob);
-    document.getElementById("fImg").value = url;
+    const dataUrl = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(blob);
+    });
+    document.getElementById("fImg").value = dataUrl;
     window.urlPreview();
-    msg.textContent = "Photo upload ho gaya ✓ — ab Save Item dabayein.";
-  } catch(e){ msg.textContent = "Upload fail: " + e.message; }
+    msg.textContent = "Photo lag gaya ✓ — ab Save Item dabayein.";
+  } catch(e){ msg.textContent = "Photo fail: " + e.message; }
   input.value = "";
 };
 window.saveItem = async function(){
@@ -674,7 +677,6 @@ if(location.hash === "#openmap"){ setTimeout(()=>{ document.getElementById("cart
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDkhvBpvn7InYcBeRonrnaXvkk1iqFy5yY",
@@ -690,7 +692,6 @@ if (CONFIGURED) {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
-  const storage = getStorage(app);
 
   /* Menu — real-time */
   onSnapshot(collection(db, "menu"), (snap) => {
@@ -717,11 +718,6 @@ if (CONFIGURED) {
     },
     deleteItem: (id) => deleteDoc(doc(db, "menu", id)),
     seedMenu: async (items) => { for (const m of items) { await addDoc(collection(db, "menu"), m); } },
-    uploadPhoto: async (blob) => {
-      const r = sRef(storage, "menu/" + Date.now() + ".jpg");
-      await uploadBytes(r, blob, { contentType: "image/jpeg" });
-      return await getDownloadURL(r);
-    },
     setOrderStatus: (id, status) => updateDoc(doc(db, "orders", id), { status })
   };
 
