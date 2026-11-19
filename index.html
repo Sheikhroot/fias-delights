@@ -69,6 +69,17 @@
   .pay-title{font-weight:700; color:#1e7a34; font-size:14px;}
   .pay-name{font-size:13.5px; margin-top:2px;}
   .pay-num{font-size:19px; font-weight:700; letter-spacing:.5px; color:var(--choc-900); margin:2px 0 8px;}
+  .thanks-box{margin-top:14px; border:2px solid var(--pink); background:var(--pink-soft); border-radius:12px; padding:18px 14px; text-align:center;}
+  .thanks-title{font-family:'Great Vibes',cursive; font-size:32px; color:var(--pink-dark); line-height:1.1;}
+  .reviews-wrap{max-width:860px; margin:0 auto; padding:16px 16px 34px;}
+  .review-card{border:1px solid var(--line); border-radius:10px; padding:11px 13px; margin-bottom:9px; font-size:13.5px; background:#fff;}
+  .review-card p{margin-top:4px; color:var(--choc);}
+  .review-head{display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .review-stars{color:#f5a623; font-size:14px; letter-spacing:2px; white-space:nowrap;}
+  .review-form input,.review-form textarea{width:100%; padding:11px; margin-bottom:9px; border:1px solid var(--line); border-radius:10px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);}
+  .stars{margin:2px 0 10px;}
+  .stars span{font-size:28px; cursor:pointer; color:#ddd; line-height:1;}
+  .stars span.on{color:#f5a623;}
   .checkout{margin-top:16px;}
   .checkout input,.checkout textarea{width:100%; padding:11px; margin-bottom:9px; border:1px solid var(--line); border-radius:10px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);}
   .checkout input:focus,.checkout textarea:focus{outline:2px solid var(--pink-mid); border-color:transparent;}
@@ -88,10 +99,6 @@
     .logo{font-size:28px;}
   }
   /* Admin */
-  #adminView{display:none; max-width:860px; margin:0 auto; padding:24px 16px 60px;}
-  #adminView h2{color:var(--choc-900); font-size:20px; margin-bottom:6px;}
-  #adminView h3{color:var(--choc); font-size:16px; margin:26px 0 10px;}
-  #adminView p{font-size:13px; color:var(--muted);}
   .panel{background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; margin-top:14px;}
   .panel input,.panel select{width:100%; padding:10px; margin-bottom:9px; border:1px solid var(--line); border-radius:9px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);}
   .panel label{font-size:12px; font-weight:600; color:var(--choc); display:block; margin-bottom:3px;}
@@ -126,7 +133,6 @@
       <div class="logo">Fia's Delights</div>
       <div class="tagline">Your Daily Dose of Sweetness</div>
     </div>
-    <button class="admin-link" onclick="openAdmin()">Admin</button>
   </div>
 </header>
 
@@ -191,6 +197,27 @@
         <button class="wa-btn" onclick="checkout()">Order on WhatsApp</button>
         <p class="note">Your order opens in WhatsApp — just press send there to confirm.</p>
       </div>
+      <div class="thanks-box" id="thanksBox" style="display:none;">
+        <div class="thanks-title">Thank You!</div>
+        <p style="margin-top:6px;">Aap ka order Fia's Delights ko bhej diya gaya hai.</p>
+        <p id="thanksDetail" style="font-weight:600; margin-top:4px;"></p>
+        <p class="note" style="text-align:left; margin-top:8px;">WhatsApp par <b>Send</b> dabana na bhoolein — order usi se confirm hota hai. Payment Easypaisa par kar sakte hein: Ameer Umar Chaman — 0345 7703800</p>
+        <button class="btn ghost" style="margin-top:10px;" onclick="hideThanks()">Aur shopping karein</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="reviews-wrap">
+    <h2 class="sec-title">Customer Reviews</h2>
+    <div class="cat-sub" id="revSummary">Loading reviews…</div>
+    <div id="reviewsList"></div>
+    <div class="panel review-form" style="margin-top:14px;">
+      <h3 style="margin-top:0;">Apna review dein</h3>
+      <input type="text" id="rName" placeholder="Your name" maxlength="60">
+      <div class="stars" id="rStars"><span class="on" onclick="setRating(1)">★</span><span class="on" onclick="setRating(2)">★</span><span class="on" onclick="setRating(3)">★</span><span class="on" onclick="setRating(4)">★</span><span class="on" onclick="setRating(5)">★</span></div>
+      <textarea id="rText" rows="2" maxlength="500" placeholder="Aap ko kaisa laga? (taste, quality, delivery...)"></textarea>
+      <button class="btn pink" onclick="submitReview()">Review bhejein</button>
+      <p id="revMsg" style="margin-top:8px;"></p>
     </div>
   </div>
 
@@ -209,69 +236,6 @@
 </div>
 
 <!-- ================= ADMIN ================= -->
-<div id="adminView">
-  <button class="back-link" onclick="closeAdmin()">← Back to shop</button>
-  <h2>Admin — Fia's Delights</h2>
-  <p>Menu yahan se badlein — change foran har customer ko nazar aayega.</p>
-
-  <div class="panel" id="loginPanel">
-    <label>Admin email</label>
-    <input type="email" id="aEmail" placeholder="you@example.com">
-    <label>Password</label>
-    <input type="password" id="aPass" placeholder="Password">
-    <button class="btn pink" onclick="adminLogin()">Login</button>
-    <p id="loginMsg" style="margin-top:8px;"></p>
-  </div>
-
-  <div id="editorPanel" style="display:none;">
-    <div class="panel" id="seedBox" style="display:none; border:2px dashed var(--pink); background:#fff0f4;">
-      <h3 style="margin-top:0;">⚠ Menu abhi database mein save NAHI hai</h3>
-      <p>Neeche jo menu list nazar aa rahi hai woh sirf is phone par hai. Asal database mein daalne ke liye yeh button dabayein — sirf aik dafa:</p>
-      <button class="btn pink" id="seedBtn" onclick="seedMenu()" style="margin-top:8px;">Load Default Menu (13 items)</button>
-    </div>
-
-    <div class="panel">
-      <h3 style="margin-top:0;">Add / Edit Item</h3>
-      <input type="hidden" id="fId">
-      <label>Item name</label>
-      <input type="text" id="fName" placeholder="e.g. Brownies">
-      <label>Size / variant</label>
-      <input type="text" id="fSize" placeholder="e.g. 4 piece (khaali bhi ho sakta hai)">
-      <label>Price (Rs.)</label>
-      <input type="number" id="fPrice" placeholder="e.g. 650" min="0">
-      <label>Category</label>
-      <select id="fCat">
-        <option value="dessert">Dessert</option>
-        <option value="savory">Savory</option>
-      </select>
-      <label>Photo URL (optional)</label>
-      <input type="text" id="fImg" placeholder="https://… (photo ka link)" oninput="urlPreview()">
-      <label>Ya gallery / files se photo chunein</label>
-      <input type="file" id="fFile" accept="image/*" onchange="pickPhoto(this)">
-      <p id="upMsg" style="font-size:12.5px; margin-top:4px;"></p>
-      <img id="fPreview" alt="" style="display:none; width:110px; height:80px; object-fit:cover; border-radius:10px; margin-top:6px;">
-      <label style="display:flex; align-items:center; gap:8px; font-size:13px;"><input type="checkbox" id="fAvail" checked style="width:auto; margin:0;"> Available (customers ko dikhe)</label>
-      <div style="display:flex; gap:8px; margin-top:6px;">
-        <button class="btn pink" onclick="saveItem()">Save Item</button>
-        <button class="btn ghost" onclick="clearForm()">Clear</button>
-      </div>
-      <p id="saveMsg" style="margin-top:8px;"></p>
-    </div>
-
-    <div class="panel">
-      <h3 style="margin-top:0;">Menu Items</h3>
-      <div id="adminItems"></div>
-    </div>
-
-    <div class="panel">
-      <h3 style="margin-top:0;">Recent Orders (website se)</h3>
-      <div id="ordersList"><p>Loading…</p></div>
-    </div>
-
-    <button class="btn ghost" onclick="adminLogout()" style="margin-top:16px;">Logout</button>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -474,6 +438,44 @@ window.clearPin = function(){
 };
 
 /* ===== Checkout ===== */
+/* ===== Customer Reviews ===== */
+let myRating = 5;
+window.setRating = function(n){
+  myRating = n;
+  document.querySelectorAll("#rStars span").forEach((s,i)=> s.classList.toggle("on", i < n));
+};
+window.__fiaSetReviews = function(list){
+  const box = document.getElementById("reviewsList");
+  const sum = document.getElementById("revSummary");
+  if(!box || !sum) return;
+  if(!list.length){
+    sum.textContent = "Be the first to review";
+    box.innerHTML = `<p class="empty">Abhi koi review nahi — pehla review aap dein!</p>`;
+    return;
+  }
+  const avg = list.reduce((a,r)=> a + (r.rating || 0), 0) / list.length;
+  sum.textContent = `★ ${avg.toFixed(1)} — ${list.length} review${list.length > 1 ? "s" : ""}`;
+  box.innerHTML = list.map(r=>`<div class="review-card">
+      <div class="review-head"><b>${esc(r.name || "Customer")}</b><span class="review-stars">${"★".repeat(r.rating || 0)}${"☆".repeat(5 - (r.rating || 0))}</span></div>
+      <p>${esc(r.text || "")}</p>
+    </div>`).join("");
+};
+window.submitReview = async function(){
+  const msg = document.getElementById("revMsg");
+  const name = document.getElementById("rName").value.trim();
+  const text = document.getElementById("rText").value.trim();
+  if(!name || !text){ msg.textContent = "Name aur review lazmi hein."; return; }
+  if(!window.__fiaSaveReview){ msg.textContent = "Setup abhi baqi hai."; return; }
+  try {
+    await window.__fiaSaveReview({ name, rating: myRating, text });
+    document.getElementById("rName").value = "";
+    document.getElementById("rText").value = "";
+    window.setRating(5);
+    msg.textContent = "Shukriya! Aap ka review lag gaya hai ✓";
+    toast("Review ke liye shukriya!");
+  } catch(e){ msg.textContent = "Error: " + e.message; }
+};
+
 window.copyEasypaisa = function(){
   const num = "03457703800";
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -511,181 +513,25 @@ window.checkout = async function(){
   msg += `\n*Subtotal:* ${fmt(sub)}\n*Delivery:* ${fmt(DELIVERY)}\n*Total:* *${fmt(grand)}*\n\n(Please confirm my order)`;
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
   toast("WhatsApp khul raha hai — wahan Send dabadein.");
+  document.getElementById("thanksDetail").textContent = `${name} — Order total: ${fmt(grand)}`;
+  const tb = document.getElementById("thanksBox");
+  tb.style.display = "block";
+  cart = {}; pickQty = {}; renderCart(); renderMenu();
+  setTimeout(()=>tb.scrollIntoView({behavior:"smooth"}), 300);
 };
-
-/* ===== Admin (UI) — asal kaam Firebase backend karega ===== */
-window.openAdmin = function(){
-  document.getElementById("shopView").style.display = "none";
-  document.getElementById("mobileBar").style.display = "none";
-  document.getElementById("adminView").style.display = "block";
-  window.scrollTo(0,0);
-};
-window.closeAdmin = function(){
-  document.getElementById("adminView").style.display = "none";
-  document.getElementById("shopView").style.display = "block";
-  document.getElementById("mobileBar").style.display = "";
-  renderMenu();
-};
-function backend(){ return window.__fiaBackend || null; }
-window.adminLogin = async function(){
-  const msg = document.getElementById("loginMsg");
-  const b = backend();
-  if(!b){ msg.textContent = "Setup abhi baqi hai — Firebase connect nahi hua."; return; }
-  const email = document.getElementById("aEmail").value.trim();
-  const pass = document.getElementById("aPass").value;
-  try { await b.login(email, pass); msg.textContent = ""; }
-  catch(e){ msg.textContent = "Login fail: " + e.message; }
-};
-window.adminLogout = async function(){ const b = backend(); if(b) await b.logout(); };
-
-function renderAdmin(){
-  const box = document.getElementById("adminItems");
-  if(!box) return;
-  const items = [...menuData].sort((a,b)=> (a.sort??999) - (b.sort??999));
-  box.innerHTML = items.length ? items.map(i=>`
-    <div class="admin-item">
-      <div><b>${esc(i.name)}</b>${i.size?` <small>(${esc(i.size)})</small>`:""} — ${fmt(i.price)} <small>[${esc(i.category)}${i.available?"":" • hidden"}]</small></div>
-      <div class="acts">
-        <button class="btn ghost small" onclick="editItem('${i.id}')">Edit</button>
-        <button class="btn ghost small" onclick="deleteItem('${i.id}')">Delete</button>
-      </div>
-    </div>`).join("") : `<p>Menu khaali hai.</p>`;
-  document.getElementById("seedBox").style.display = (window.__fiaDbEmpty === true) ? "block" : "none";
-}
-window.editItem = function(id){
-  const i = menuData.find(m=>m.id===id); if(!i) return;
-  document.getElementById("fId").value = id;
-  document.getElementById("fName").value = i.name || "";
-  document.getElementById("fSize").value = i.size || "";
-  document.getElementById("fPrice").value = i.price ?? "";
-  document.getElementById("fCat").value = i.category || "dessert";
-  document.getElementById("fImg").value = i.imageUrl || "";
-  document.getElementById("fAvail").checked = i.available !== false;
-  document.getElementById("upMsg").textContent = "";
-  window.urlPreview();
-  window.scrollTo(0,0);
-};
-window.clearForm = function(){
-  ["fId","fName","fSize","fPrice","fImg","fFile"].forEach(x=>document.getElementById(x).value="");
-  document.getElementById("fAvail").checked = true;
-  document.getElementById("saveMsg").textContent = "";
-  document.getElementById("upMsg").textContent = "";
-  window.urlPreview();
-};
-window.urlPreview = function(){
-  const url = document.getElementById("fImg").value.trim();
-  const img = document.getElementById("fPreview");
-  if(url){ img.src = url; img.style.display = "block"; }
-  else { img.style.display = "none"; img.removeAttribute("src"); }
-};
-function resizeImage(file){
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const max = 800;
-      let w = img.width, h = img.height;
-      if(w > max || h > max){ const s = max / Math.max(w, h); w = Math.round(w*s); h = Math.round(h*s); }
-      const c = document.createElement("canvas"); c.width = w; c.height = h;
-      c.getContext("2d").drawImage(img, 0, 0, w, h);
-      c.toBlob(b => b ? resolve(b) : reject(new Error("photo process nahi hui")), "image/jpeg", 0.8);
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("photo khul nahi saki")); };
-    img.src = url;
-  });
-}
-window.pickPhoto = async function(input){
-  const msg = document.getElementById("upMsg");
-  const file = input.files && input.files[0];
-  if(!file) return;
-  msg.textContent = "Photo tayyar ho raha hai…";
-  try {
-    const blob = await resizeImage(file);
-    const dataUrl = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(r.result);
-      r.onerror = rej;
-      r.readAsDataURL(blob);
-    });
-    document.getElementById("fImg").value = dataUrl;
-    window.urlPreview();
-    msg.textContent = "Photo lag gaya ✓ — ab Save Item dabayein.";
-  } catch(e){ msg.textContent = "Photo fail: " + e.message; }
-  input.value = "";
-};
-window.saveItem = async function(){
-  const msg = document.getElementById("saveMsg");
-  const b = backend();
-  if(!b){ msg.textContent = "Setup baqi hai — Firebase connect nahi hua."; return; }
-  const id = document.getElementById("fId").value;
-  const data = {
-    name: document.getElementById("fName").value.trim(),
-    size: document.getElementById("fSize").value.trim(),
-    price: parseInt(document.getElementById("fPrice").value, 10),
-    category: document.getElementById("fCat").value,
-    imageUrl: document.getElementById("fImg").value.trim(),
-    available: document.getElementById("fAvail").checked
-  };
-  if(!data.name || isNaN(data.price)){ msg.textContent = "Name aur price lazmi hein."; return; }
-  try {
-    await b.saveItem(id, data);
-    msg.textContent = "Save ho gaya ✓";
-    clearForm();
-  } catch(e){ msg.textContent = "Error: " + e.message; }
-};
-window.deleteItem = async function(id){
-  const b = backend();
-  if(!b){ toast("Setup baqi hai — Firebase connect nahi hua."); return; }
-  if(!confirm("Yeh item delete kar dein?")) return;
-  try { await b.deleteItem(id); } catch(e){ toast("Error: " + e.message); }
-};
-window.seedMenu = async function(){
-  const b = backend();
-  if(!b){ toast("Setup baqi hai."); return; }
-  const btn = document.getElementById("seedBtn");
-  if(btn){ btn.disabled = true; btn.textContent = "Loading… (13 items)"; }
-  try { await b.seedMenu(DEFAULT_MENU); toast("Default menu load ho gaya ✓"); }
-  catch(e){ toast("Error: " + e.message); if(btn){ btn.disabled = false; btn.textContent = "Load Default Menu (13 items)"; } }
-};
-window.setOrderStatus = async function(id, status){
-  const b = backend();
-  if(!b) return;
-  try { await b.setOrderStatus(id, status); } catch(e){ toast("Error: " + e.message); }
-};
-
-/* Orders render (backend data bhejta hai) */
-window.__fiaRenderOrders = function(orders){
-  const box = document.getElementById("ordersList");
-  if(!box) return;
-  if(!orders.length){ box.innerHTML = `<p>Abhi koi website order nahi aaya.</p>`; return; }
-  box.innerHTML = orders.map(o=>{
-    const lines = (o.items||[]).map(i=>`${i.qty}× ${esc(i.name)}${i.size?` (${esc(i.size)})`:""}`).join("<br>");
-    return `<div class="order-card">
-      <b>${esc(o.customerName)}</b> — ${esc(o.phone)}<br>
-      <small>${esc(o.address)}${o.landmark?` • Landmark: ${esc(o.landmark)}`:""}${o.note?` • Note: ${esc(o.note)}`:""}</small>
-      ${(o.lat && o.lng) ? `<br><a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" rel="noopener">Customer ki pinned location (map)</a>` : ``}<br>
-      ${lines}<br>
-      <b>Total: ${fmt(o.total||0)}</b> <small>(${esc(o.when||"")})</small><br>
-      Status:
-      <select onchange="setOrderStatus('${o.id}', this.value)">
-        ${["pending","confirmed","delivered","cancelled"].map(s=>`<option value="${s}" ${o.status===s?"selected":""}>${s}</option>`).join("")}
-      </select>
-    </div>`;
-  }).join("");
-};
+window.hideThanks = function(){ document.getElementById("thanksBox").style.display = "none"; };
 
 /* Backend (Firebase) menu bhejta hai to UI refresh */
 window.__fiaSetMenu = function(items){
   menuData = items;
-  renderMenu(); renderAdmin();
+  renderMenu();
 };
 window.__fiaDefaultMenu = function(){
   return DEFAULT_MENU.map((m,i)=>({ id:"default-"+i, ...m }));
 };
 
 /* Pehla render — foran, baghair kisi network ke */
-renderMenu(); renderAdmin();
+renderMenu();
 /* QA / deep-link: #openmap se map khula hua milega */
 if(location.hash === "#openmap"){ setTimeout(()=>{ document.getElementById("cartBox").scrollIntoView(); window.toggleMap(); }, 400); }
 </script>
@@ -694,7 +540,6 @@ if(location.hash === "#openmap"){ setTimeout(()=>{ document.getElementById("cart
 /* ===== Firebase glue — config aane ke baad hi active hoga ===== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDkhvBpvn7InYcBeRonrnaXvkk1iqFy5yY",
@@ -709,7 +554,6 @@ const CONFIGURED = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("Y
 if (CONFIGURED) {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const auth = getAuth(app);
 
   /* Menu — real-time */
   onSnapshot(collection(db, "menu"), (snap) => {
@@ -726,32 +570,14 @@ if (CONFIGURED) {
     await addDoc(collection(db, "orders"), { ...order, status: "pending", createdAt: serverTimestamp() });
   };
 
-  /* Admin backend */
-  window.__fiaBackend = {
-    login: (email, pass) => signInWithEmailAndPassword(auth, email, pass),
-    logout: () => signOut(auth),
-    saveItem: async (id, data) => {
-      if (id && !id.startsWith("default-")) { await updateDoc(doc(db, "menu", id), data); }
-      else { data.sort = Date.now() / 1000; await addDoc(collection(db, "menu"), data); }
-    },
-    deleteItem: (id) => deleteDoc(doc(db, "menu", id)),
-    seedMenu: async (items) => { for (const m of items) { await addDoc(collection(db, "menu"), m); } },
-    setOrderStatus: (id, status) => updateDoc(doc(db, "orders", id), { status })
+  /* Reviews — real-time */
+  onSnapshot(query(collection(db, "reviews"), orderBy("createdAt", "desc"), limit(20)), (snap) => {
+    if(window.__fiaSetReviews) window.__fiaSetReviews(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  }, () => { if(window.__fiaSetReviews) window.__fiaSetReviews([]); });
+  window.__fiaSaveReview = async (r) => {
+    await addDoc(collection(db, "reviews"), { ...r, createdAt: serverTimestamp() });
   };
 
-  onAuthStateChanged(auth, (user) => {
-    document.getElementById("loginPanel").style.display = user ? "none" : "block";
-    document.getElementById("editorPanel").style.display = user ? "block" : "none";
-    if (user) {
-      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"), limit(30));
-      onSnapshot(q, (snap) => {
-        window.__fiaRenderOrders(snap.docs.map(d => {
-          const o = d.data();
-          return { id: d.id, ...o, when: o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString("en-PK") : "" };
-        }));
-      }, () => { document.getElementById("ordersList").innerHTML = "<p>Orders load nahi hue.</p>"; });
-    }
-  });
 }
 </script>
 </body>
