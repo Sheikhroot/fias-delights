@@ -233,7 +233,11 @@
         <option value="savory">Savory</option>
       </select>
       <label>Photo URL (optional)</label>
-      <input type="text" id="fImg" placeholder="https://… (photo ka link)">
+      <input type="text" id="fImg" placeholder="https://… (photo ka link)" oninput="urlPreview()">
+      <label>Ya gallery / files se photo chunein</label>
+      <input type="file" id="fFile" accept="image/*" onchange="pickPhoto(this)">
+      <p id="upMsg" style="font-size:12.5px; margin-top:4px;"></p>
+      <img id="fPreview" alt="" style="display:none; width:110px; height:80px; object-fit:cover; border-radius:10px; margin-top:6px;">
       <label style="display:flex; align-items:center; gap:8px; font-size:13px;"><input type="checkbox" id="fAvail" checked style="width:auto; margin:0;"> Available (customers ko dikhe)</label>
       <div style="display:flex; gap:8px; margin-top:6px;">
         <button class="btn pink" onclick="saveItem()">Save Item</button>
@@ -539,12 +543,55 @@ window.editItem = function(id){
   document.getElementById("fCat").value = i.category || "dessert";
   document.getElementById("fImg").value = i.imageUrl || "";
   document.getElementById("fAvail").checked = i.available !== false;
+  document.getElementById("upMsg").textContent = "";
+  window.urlPreview();
   window.scrollTo(0,0);
 };
 window.clearForm = function(){
-  ["fId","fName","fSize","fPrice","fImg"].forEach(x=>document.getElementById(x).value="");
+  ["fId","fName","fSize","fPrice","fImg","fFile"].forEach(x=>document.getElementById(x).value="");
   document.getElementById("fAvail").checked = true;
   document.getElementById("saveMsg").textContent = "";
+  document.getElementById("upMsg").textContent = "";
+  window.urlPreview();
+};
+window.urlPreview = function(){
+  const url = document.getElementById("fImg").value.trim();
+  const img = document.getElementById("fPreview");
+  if(url){ img.src = url; img.style.display = "block"; }
+  else { img.style.display = "none"; img.removeAttribute("src"); }
+};
+function resizeImage(file){
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const max = 900;
+      let w = img.width, h = img.height;
+      if(w > max || h > max){ const s = max / Math.max(w, h); w = Math.round(w*s); h = Math.round(h*s); }
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      c.toBlob(b => b ? resolve(b) : reject(new Error("photo process nahi hui")), "image/jpeg", 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("photo khul nahi saki")); };
+    img.src = url;
+  });
+}
+window.pickPhoto = async function(input){
+  const msg = document.getElementById("upMsg");
+  const file = input.files && input.files[0];
+  if(!file) return;
+  const b = backend();
+  if(!b || !b.uploadPhoto){ msg.textContent = "Setup abhi baqi hai — upload connect nahi hua."; return; }
+  msg.textContent = "Photo upload ho raha hai…";
+  try {
+    const blob = await resizeImage(file);
+    const url = await b.uploadPhoto(blob);
+    document.getElementById("fImg").value = url;
+    window.urlPreview();
+    msg.textContent = "Photo upload ho gaya ✓ — ab Save Item dabayein.";
+  } catch(e){ msg.textContent = "Upload fail: " + e.message; }
+  input.value = "";
 };
 window.saveItem = async function(){
   const msg = document.getElementById("saveMsg");
@@ -627,6 +674,7 @@ if(location.hash === "#openmap"){ setTimeout(()=>{ document.getElementById("cart
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDkhvBpvn7InYcBeRonrnaXvkk1iqFy5yY",
@@ -642,6 +690,7 @@ if (CONFIGURED) {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+  const storage = getStorage(app);
 
   /* Menu — real-time */
   onSnapshot(collection(db, "menu"), (snap) => {
@@ -668,6 +717,11 @@ if (CONFIGURED) {
     },
     deleteItem: (id) => deleteDoc(doc(db, "menu", id)),
     seedMenu: async (items) => { for (const m of items) { await addDoc(collection(db, "menu"), m); } },
+    uploadPhoto: async (blob) => {
+      const r = sRef(storage, "menu/" + Date.now() + ".jpg");
+      await uploadBytes(r, blob, { contentType: "image/jpeg" });
+      return await getDownloadURL(r);
+    },
     setOrderStatus: (id, status) => updateDoc(doc(db, "orders", id), { status })
   };
 
