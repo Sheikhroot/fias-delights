@@ -575,19 +575,33 @@ window.setOrderStatus = async function(id, status){
 };
 
 /* Orders render (backend data bhejta hai) */
+function normPhone(p){
+  p = (p || "").replace(/\D/g, "");
+  if(p.startsWith("0")) p = "92" + p.slice(1);
+  else if(p.length === 10 && p.startsWith("3")) p = "92" + p;
+  return p;
+}
 window.__fiaRenderOrders = function(orders){
   window.__fiaOrders = orders;
   const box = document.getElementById("ordersList");
   if(!box) return;
   if(!orders.length){ box.innerHTML = `<p>Abhi koi website order nahi aaya.</p>`; return; }
+  const counts = {};
+  orders.forEach(x => { if(x.status !== "cancelled"){ const k = normPhone(x.phone || ""); if(k) counts[k] = (counts[k] || 0) + 1; } });
+  const giftsGiven = window.__fiaCustomers || {};
   box.innerHTML = orders.map(o=>{
     const lines = (o.items||[]).map(i=>`${i.qty}× ${esc(i.name)}${i.size?` (${esc(i.size)})`:""}`).join("<br>");
+    const k = normPhone(o.phone || "");
+    const totalOrders = counts[k] || 0;
+    const giftDue = Math.floor(totalOrders / 10) - (giftsGiven[k] || 0);
     return `<div class="order-card">
       <b>${esc(o.customerName)}</b> — ${esc(o.phone)}<br>
       <small>${esc(o.address)}${o.landmark?` • Landmark: ${esc(o.landmark)}`:""}${o.note?` • Note: ${esc(o.note)}`:""}</small>
       ${(o.lat && o.lng) ? `<br><a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" rel="noopener">Customer ki pinned location (map)</a>` : ``}<br>
       ${lines}<br>
-      <b>Total: ${fmt(o.total||0)}</b> <small>(${esc(o.when||"")})</small><br>
+      <b>Total: ${fmt(o.total||0)}</b> <small>(${esc(o.when||"")})</small>${o.discount ? `<br><small>Referral discount: −${fmt(o.discount)} (code: ${esc(o.referredBy||"")})</small>` : ``}<br>
+      <small>Loyalty: is customer ke kul <b>${totalOrders}</b> orders (cancelled ke baghair)${giftDue > 0 ? ` — <b style="color:var(--pink-dark);">🎁 SURPRISE GIFT due (${giftDue})</b>` : ``}</small><br>
+      ${giftDue > 0 ? `<button class="btn pink small" style="margin:6px 0;" onclick="markGift('${k}')">🎁 Gift de diya — mark karein</button><br>` : ``}
       Status:
       <select onchange="setOrderStatus('${o.id}', this.value)">
         ${["pending","confirmed","delivered","cancelled"].map(s=>`<option value="${s}" ${o.status===s?"selected":""}>${s}</option>`).join("")}
@@ -597,6 +611,12 @@ window.__fiaRenderOrders = function(orders){
   }).join("");
 };
 
+
+window.markGift = async function(phoneKey){
+  if(!window.__fiaMarkGift){ toast("Setup baqi hai"); return; }
+  try { await window.__fiaMarkGift(phoneKey); toast("Gift mark ho gaya ✓"); }
+  catch(e){ toast("Error: " + e.message); }
+};
 
 window.notifyCustomer = function(id){
   const o = (window.__fiaOrders || []).find(x => x.id === id);
@@ -634,7 +654,7 @@ renderAdmin();
 <script type="module">
 /* ===== Firebase glue — config aane ke baad hi active hoga ===== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, setDoc, increment, onSnapshot, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -691,6 +711,16 @@ if (CONFIGURED) {
           return { id: d.id, ...o, when: o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString("en-PK") : "" };
         }));
       }, () => { document.getElementById("ordersList").innerHTML = "<p>Orders load nahi hue.</p>"; });
+      /* Loyalty — kis customer ko kitne gifts de diye */
+      onSnapshot(collection(db, "customers"), (snap) => {
+        const map = {};
+        snap.docs.forEach(d => { map[d.id] = d.data().giftsGiven || 0; });
+        window.__fiaCustomers = map;
+        if(window.__fiaOrders && window.__fiaRenderOrders) window.__fiaRenderOrders(window.__fiaOrders);
+      }, () => {});
+      window.__fiaMarkGift = async (phoneKey) => {
+        await setDoc(doc(db, "customers", phoneKey), { giftsGiven: increment(1), updatedAt: serverTimestamp() }, { merge: true });
+      };
     }
   });
 }

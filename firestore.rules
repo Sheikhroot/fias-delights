@@ -10,6 +10,15 @@ service cloud.firestore {
       allow read, update: if request.auth != null;
       allow delete: if false;
     }
+    match /loyalty/{phoneHash} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['stamps']) && request.resource.data.stamps == 1;
+      allow update: if request.resource.data.keys().hasOnly(['stamps']) && request.resource.data.stamps == resource.data.stamps + 1;
+      allow delete: if request.auth != null;
+    }
+    match /customers/{phone} {
+      allow read, write: if request.auth != null;
+    }
     match /reviews/{reviewId} {
       allow read: if true;
       allow create: if request.resource.data.keys().hasOnly(['name', 'rating', 'text', 'createdAt', 'imageUrl'])

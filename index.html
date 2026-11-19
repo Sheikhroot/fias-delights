@@ -168,6 +168,7 @@
       <div class="totals" id="cartTotals" style="display:none;">
         <div class="row"><span>Subtotal</span><span id="subTotal">Rs. 0</span></div>
         <div class="row"><span>Delivery (in city)</span><span>Rs. 150</span></div>
+        <div class="row" id="refRow" style="display:none;"><span>Referral discount</span><span id="refAmt">− Rs. 0</span></div>
         <div class="row grand"><span>Total</span><span id="grandTotal">Rs. 0</span></div>
       </div>
       <div class="pay-box">
@@ -194,6 +195,8 @@
           </div>
         </div>
         <input type="text" id="cNote" placeholder="Note (optional) — e.g. delivery time">
+        <input type="text" id="cReferral" placeholder="Referral code — dost ka mobile number (optional)" onblur="checkReferral()">
+        <p id="refMsg" style="font-size:12.5px; margin:-4px 0 8px;"></p>
         <button class="wa-btn" onclick="checkout()">Order on WhatsApp</button>
         <p class="note">Your order opens in WhatsApp — just press send there to confirm.</p>
       </div>
@@ -201,9 +204,23 @@
         <div class="thanks-title">Thank You!</div>
         <p style="margin-top:6px;">Aap ka order Fia's Delights ko bhej diya gaya hai.</p>
         <p id="thanksDetail" style="font-weight:600; margin-top:4px;"></p>
+        <p id="thanksStamps" style="font-weight:600; margin-top:4px; color:var(--pink-dark);"></p>
         <p class="note" style="text-align:left; margin-top:8px;">WhatsApp par <b>Send</b> dabana na bhoolein — order usi se confirm hota hai. Payment Easypaisa par kar sakte hein: Ameer Umar Chaman — 0345 7703800</p>
         <button class="btn ghost" style="margin-top:10px;" onclick="hideThanks()">Aur shopping karein</button>
       </div>
+    </div>
+  </div>
+
+  <div class="reviews-wrap" style="padding-bottom:0;">
+    <div class="panel" style="text-align:center;">
+      <h3 style="margin-top:0;">🎁 Fia's Loyalty — Stamps</h3>
+      <p style="font-size:13.5px;">Har order par <b>1 stamp</b> milta hai. <b>10 stamps</b> mukammal hone par aik <b>SURPRISE GIFT</b>!</p>
+      <p style="font-size:13.5px; margin-top:6px;">Dost ko refer karein: dost apne pehle order par aap ka mobile number referral code mein dale to use <b>Rs. 100 off</b> milega — aur aap ko <b>1 extra stamp</b>!</p>
+      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
+        <input type="tel" id="loyPhone" placeholder="Apna mobile number" style="padding:11px; border:1px solid var(--line); border-radius:10px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);">
+        <button class="btn pink" onclick="checkStamps()">Mere stamps dekhein</button>
+      </div>
+      <p id="loyResult" style="margin-top:10px; font-size:14px;"></p>
     </div>
   </div>
 
@@ -324,6 +341,7 @@ window.applySearch = function(){ renderMenu(); };
 
 /* ===== Quantity picker (Add se pehle tadaad chunna) ===== */
 let pickQty = {};
+let refState = { code:"", valid:false, discount:0 };
 window.pickChange = function(id, delta){
   const next = Math.min(50, Math.max(1, (pickQty[id]||1) + delta));
   pickQty[id] = next;
@@ -364,6 +382,8 @@ function renderCart(){
   const box = document.getElementById("cartItems");
   const totals = document.getElementById("cartTotals");
   const { sub, count, grand } = cartTotals();
+  const disc = (refState.valid && count) ? Math.min(refState.discount, sub) : 0;
+  const grandNet = count ? grand - disc : 0;
   const entries = Object.values(cart);
   if(!entries.length){
     box.innerHTML = `<p class="empty">Your cart is empty.</p>`;
@@ -379,12 +399,15 @@ function renderCart(){
         <div style="text-align:right;">${fmt(i.price*i.qty)}<br><button class="rm" onclick="removeLine('${i.id}')">Remove</button></div>
       </div>`).join("");
     document.getElementById("subTotal").textContent = fmt(sub);
-    document.getElementById("grandTotal").textContent = fmt(grand);
+    document.getElementById("grandTotal").textContent = fmt(grandNet);
+    const rr = document.getElementById("refRow");
+    if(disc > 0){ rr.style.display = "flex"; document.getElementById("refAmt").textContent = "− " + fmt(disc); }
+    else { rr.style.display = "none"; }
     totals.style.display = "block";
   }
   const mb = document.getElementById("mobileBar");
   document.getElementById("mbCount").textContent = count + (count===1 ? " item" : " items");
-  document.getElementById("mbTotal").textContent = fmt(grand);
+  document.getElementById("mbTotal").textContent = fmt(grandNet);
   mb.classList.toggle("show", count > 0);
 }
 window.removeLine = function(id){
@@ -521,6 +544,51 @@ window.submitReview = async function(){
   } catch(e){ msg.textContent = "Error: " + e.message; }
 };
 
+/* ===== Referral + Loyalty (stamps) ===== */
+const REFERRAL_DISCOUNT = 100;
+const STAMPS_FOR_GIFT = 10;
+function normPhone(p){
+  p = (p || "").replace(/\D/g, "");
+  if(p.startsWith("0")) p = "92" + p.slice(1);
+  else if(p.length === 10 && p.startsWith("3")) p = "92" + p;
+  return p;
+}
+window.checkReferral = async function(){
+  const msg = document.getElementById("refMsg");
+  const codeRaw = document.getElementById("cReferral").value.trim();
+  const myPhone = normPhone(document.getElementById("cPhone").value);
+  refState = { code:"", valid:false, discount:0 };
+  msg.style.color = "";
+  if(!codeRaw){ msg.textContent = ""; renderCart(); return false; }
+  if(!window.__fiaGetStamps){ msg.textContent = ""; return false; }
+  const code = normPhone(codeRaw);
+  if(myPhone && code === myPhone){ msg.textContent = "Apna hi number referral nahi ho sakta."; renderCart(); return false; }
+  const refStamps = await window.__fiaGetStamps(code);
+  if(refStamps === null){ msg.textContent = "Yeh referral code durust nahi — is number se pehle koi order nahi hua."; renderCart(); return false; }
+  const myStamps = myPhone ? await window.__fiaGetStamps(myPhone) : null;
+  if(myStamps){ msg.textContent = "Referral discount sirf pehle order par milta hai."; renderCart(); return false; }
+  refState = { code, valid:true, discount: REFERRAL_DISCOUNT };
+  msg.textContent = "✓ Referral lag gaya — Rs. " + REFERRAL_DISCOUNT + " off milega!";
+  msg.style.color = "green";
+  renderCart();
+  return true;
+};
+window.checkStamps = async function(){
+  const out = document.getElementById("loyResult");
+  const p = normPhone(document.getElementById("loyPhone").value);
+  if(p.length < 12){ out.textContent = "Sahi mobile number likhein (03xx-xxxxxxx)."; return; }
+  if(!window.__fiaGetStamps){ out.textContent = "Abhi system tayyar ho raha hai."; return; }
+  out.textContent = "Check ho raha hai…";
+  const stamps = await window.__fiaGetStamps(p);
+  if(stamps === null){ out.textContent = "Is number par abhi koi stamp nahi — pehla order karein, pehla stamp mil jayega!"; return; }
+  const inCycle = stamps % STAMPS_FOR_GIFT;
+  const gifts = Math.floor(stamps / STAMPS_FOR_GIFT);
+  const dots = "●".repeat(inCycle) + "○".repeat(STAMPS_FOR_GIFT - inCycle);
+  out.innerHTML = `Aap ke stamps: <b>${stamps}</b> &nbsp;<span style="color:var(--pink-dark); letter-spacing:2px;">${dots}</span><br>` +
+    (inCycle === 0 ? `Mubarak! Aap ka <b>SURPRISE GIFT</b> banta hai — WhatsApp par rabta karein 🎁` : `Surprise gift ke liye bas <b>${STAMPS_FOR_GIFT - inCycle} stamp</b> aur!`) +
+    (gifts > 0 ? `<br>Kul surprise gifts earned: <b>${gifts}</b>` : ``);
+};
+
 window.copyEasypaisa = function(){
   const num = "03457703800";
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -538,15 +606,30 @@ window.checkout = async function(){
   if(!name || !phone || !address){ toast("Name, phone aur address lazmi hein."); return; }
   const { sub, grand } = cartTotals();
 
+  /* Referral — checkout par dobara verify */
+  let discount = 0, referredBy = "";
+  if(document.getElementById("cReferral").value.trim()){
+    const ok = await window.checkReferral();
+    if(ok){ discount = Math.min(refState.discount, sub); referredBy = refState.code; }
+  }
+  const grandNet = grand - discount;
+
   if(window.__fiaSaveOrder){
     try {
       await window.__fiaSaveOrder({
         customerName:name, phone, address, landmark, note,
         lat: pin ? pin.lat : null, lng: pin ? pin.lng : null, pinAddress: pin ? (pin.address || "") : "",
         items: entries.map(i=>({ name:i.name, size:i.size, price:i.price, qty:i.qty })),
-        subtotal: sub, delivery: DELIVERY, total: grand
+        subtotal: sub, delivery: DELIVERY, discount, referredBy, total: grandNet
       });
     } catch(e){ /* WhatsApp phir bhi khulega */ }
+  }
+
+  /* Loyalty stamps — apna +1, referrer ka +1 */
+  let myStamps = null;
+  if(window.__fiaBumpStamps){
+    try { myStamps = await window.__fiaBumpStamps(phone); } catch(e){}
+    if(referredBy){ try { await window.__fiaBumpStamps(referredBy); } catch(e){} }
   }
 
   let msg = `*New Order — Fia's Delights*\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n`;
@@ -555,10 +638,17 @@ window.checkout = async function(){
   if(note) msg += `*Note:* ${note}\n`;
   msg += `\n*Items:*\n`;
   entries.forEach(i=>{ msg += `▪️ ${i.qty}× ${i.name}${i.size?` (${i.size})`:""} — ${fmt(i.price*i.qty)}\n`; });
-  msg += `\n*Subtotal:* ${fmt(sub)}\n*Delivery:* ${fmt(DELIVERY)}\n*Total:* *${fmt(grand)}*\n\n(Please confirm my order)`;
+  msg += `\n*Subtotal:* ${fmt(sub)}\n*Delivery:* ${fmt(DELIVERY)}\n`;
+  if(discount) msg += `*Referral discount:* -${fmt(discount)}\n`;
+  msg += `*Total:* *${fmt(grandNet)}*\n\n(Please confirm my order)`;
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
   toast("WhatsApp khul raha hai — wahan Send dabadein.");
-  document.getElementById("thanksDetail").textContent = `${name} — Order total: ${fmt(grand)}`;
+  document.getElementById("thanksDetail").textContent = `${name} — Order total: ${fmt(grandNet)}`;
+  document.getElementById("thanksStamps").textContent = myStamps
+    ? (myStamps % STAMPS_FOR_GIFT === 0
+        ? `🎁 Mubarak! Aap ke ${myStamps} stamps mukammal — SURPRISE GIFT banta hai!`
+        : `🎁 Aap ke stamps: ${myStamps % STAMPS_FOR_GIFT}/10 — surprise gift ki taraf aik qadam aur!`)
+    : "";
   const tb = document.getElementById("thanksBox");
   tb.style.display = "block";
   cart = {}; pickQty = {}; renderCart(); renderMenu();
@@ -584,7 +674,7 @@ if(location.hash === "#openmap"){ setTimeout(()=>{ document.getElementById("cart
 <script type="module">
 /* ===== Firebase glue — config aane ke baad hi active hoga ===== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, increment, onSnapshot, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDkhvBpvn7InYcBeRonrnaXvkk1iqFy5yY",
@@ -621,6 +711,38 @@ if (CONFIGURED) {
   }, () => { if(window.__fiaSetReviews) window.__fiaSetReviews([]); });
   window.__fiaSaveReview = async (r) => {
     await addDoc(collection(db, "reviews"), { ...r, createdAt: serverTimestamp() });
+  };
+
+  /* Loyalty stamps — doc id = phone ka hash (number khud zahir nahi hota) */
+  function phoneHash(p){
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    const s = String(p);
+    for(let i = 0; i < s.length; i++){
+      const ch = s.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (h2 >>> 0).toString(16).padStart(8, "0") + (h1 >>> 0).toString(16).padStart(8, "0");
+  }
+  function normPhoneJs(p){
+    p = (p || "").replace(/\D/g, "");
+    if(p.startsWith("0")) p = "92" + p.slice(1);
+    else if(p.length === 10 && p.startsWith("3")) p = "92" + p;
+    return p;
+  }
+  window.__fiaGetStamps = async (phone) => {
+    try {
+      const snap = await getDoc(doc(db, "loyalty", phoneHash(normPhoneJs(phone))));
+      return snap.exists() ? (snap.data().stamps || 0) : null;
+    } catch(e){ return null; }
+  };
+  window.__fiaBumpStamps = async (phone) => {
+    const ref = doc(db, "loyalty", phoneHash(normPhoneJs(phone)));
+    await setDoc(ref, { stamps: increment(1) }, { merge: true });
+    const snap = await getDoc(ref);
+    return snap.exists() ? (snap.data().stamps || 0) : null;
   };
 
 }
