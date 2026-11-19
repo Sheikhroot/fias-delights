@@ -546,6 +546,7 @@ window.submitReview = async function(){
 
 /* ===== Referral + Loyalty (stamps) ===== */
 const REFERRAL_DISCOUNT = 50;
+const REFERRAL_CAP = 5;
 const STAMPS_FOR_GIFT = 10;
 function normPhone(p){
   p = (p || "").replace(/\D/g, "");
@@ -567,6 +568,8 @@ window.checkReferral = async function(){
   if(refStamps === null){ msg.textContent = "Yeh referral code durust nahi — is number se pehle koi order nahi hua."; renderCart(); return false; }
   const myStamps = myPhone ? await window.__fiaGetStamps(myPhone) : null;
   if(myStamps){ msg.textContent = "Referral discount sirf pehle order par milta hai."; renderCart(); return false; }
+  const used = window.__fiaGetRefsUsed ? await window.__fiaGetRefsUsed(code) : 0;
+  if(used >= REFERRAL_CAP){ msg.textContent = "Is referral code ki had (" + REFERRAL_CAP + " dafa) mukammal ho chuki hai."; renderCart(); return false; }
   refState = { code, valid:true, discount: REFERRAL_DISCOUNT };
   msg.textContent = "✓ Referral lag gaya — Rs. " + REFERRAL_DISCOUNT + " off milega!";
   msg.style.color = "green";
@@ -629,7 +632,10 @@ window.checkout = async function(){
   let myStamps = null;
   if(window.__fiaBumpStamps){
     try { myStamps = await window.__fiaBumpStamps(phone); } catch(e){}
-    if(referredBy){ try { await window.__fiaBumpStamps(referredBy); } catch(e){} }
+    if(referredBy){
+      try { await window.__fiaBumpStamps(referredBy); } catch(e){}
+      try { await window.__fiaBumpRefsUsed(referredBy); } catch(e){}
+    }
   }
 
   let msg = `*New Order — Fia's Delights*\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n`;
@@ -743,6 +749,17 @@ if (CONFIGURED) {
     await setDoc(ref, { stamps: increment(1) }, { merge: true });
     const snap = await getDoc(ref);
     return snap.exists() ? (snap.data().stamps || 0) : null;
+  };
+
+  /* Referral had — aik number se kitni dafa discount diya gaya */
+  window.__fiaGetRefsUsed = async (phone) => {
+    try {
+      const snap = await getDoc(doc(db, "refcounts", phoneHash(normPhoneJs(phone))));
+      return snap.exists() ? (snap.data().used || 0) : 0;
+    } catch(e){ return 0; }
+  };
+  window.__fiaBumpRefsUsed = async (phone) => {
+    await setDoc(doc(db, "refcounts", phoneHash(normPhoneJs(phone))), { used: increment(1) }, { merge: true });
   };
 
 }
