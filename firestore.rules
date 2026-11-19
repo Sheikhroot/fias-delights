@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Menu: har koi parh sakta hai, likh sirf logged-in admin sakta hai
+    match /menu/{itemId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Orders: customer order daal sakta hai (WhatsApp ke sath save bhi ho),
+    // parhna / status badalna sirf admin ka kaam hai
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read, update: if request.auth != null;
+      allow delete: if false;
+    }
+  }
+}

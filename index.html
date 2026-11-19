@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fia's Delights — Order Online | Chiniot</title>
+<meta name="description" content="Fia's Delights, Chiniot — homemade desserts & savory. Puddle Cake, Brownies, Brookies, Chicken Buns & Wraps. Order on WhatsApp. Delivery Rs. 150 in city.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --choc-900:#3b1c0d; --choc:#5a2d16; --choc-600:#7a3f1f;
+    --pink:#e75480; --pink-dark:#c93a68; --pink-soft:#fdeef3; --pink-mid:#f7a8b8;
+    --cream:#fff8f0; --gold:#d9a441; --ink:#33231a; --muted:#8a7466;
+    --card:#ffffff; --line:#f0ddd2;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Poppins',sans-serif; background:var(--cream); color:var(--ink);}
+  header{background:linear-gradient(135deg,var(--choc-900),var(--choc) 55%,var(--choc-600)); color:#fff; position:sticky; top:0; z-index:200; box-shadow:0 2px 12px rgba(59,28,13,.35);}
+  .header-in{max-width:1200px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .logo{font-family:'Great Vibes',cursive; font-size:34px; line-height:1; color:#ffd9e4; text-shadow:0 2px 6px rgba(0,0,0,.3);}
+  .tagline{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--pink-mid); margin-top:2px;}
+  .admin-link{background:transparent; border:1px solid rgba(255,255,255,.5); color:#fff; padding:6px 12px; border-radius:20px; cursor:pointer; font-family:'Poppins',sans-serif; font-size:12px;}
+  .admin-link:hover{border-color:var(--pink-mid); color:var(--pink-mid);}
+  .hero{background:linear-gradient(180deg,#fff3e6, var(--cream)); border-bottom:3px solid var(--pink-soft); padding:18px 16px 8px; text-align:center;}
+  .hero h1{font-family:'Great Vibes',cursive; font-weight:400; font-size:40px; color:var(--choc);}
+  .hero p{color:var(--muted); font-size:13px; margin-top:4px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:14px auto 10px; max-width:700px;}
+  .chip{background:#fff; border:1px solid var(--line); border-radius:20px; padding:6px 14px; font-size:12.5px; font-weight:500; color:var(--choc); box-shadow:0 1px 4px rgba(90,45,22,.06);}
+  .chip b{color:var(--pink-dark);}
+  .layout{max-width:1200px; margin:0 auto; padding:10px 16px 40px; display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap;}
+  .menu-side{flex:1 1 620px; min-width:300px;}
+  .cat-title{font-family:'Great Vibes',cursive; font-weight:400; font-size:34px; color:var(--choc); margin:22px 0 4px;}
+  .cat-sub{font-size:12px; color:var(--muted); margin-bottom:14px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px;}
+  .item{background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:0 3px 10px rgba(90,45,22,.06); display:flex; flex-direction:row;}
+  .item .photo{width:118px; min-width:118px; background:linear-gradient(135deg,var(--pink-soft),#fbd3de); display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .item .photo img{width:100%; height:100%; object-fit:cover;}
+  .item .photo .initial{font-family:'Great Vibes',cursive; font-size:40px; color:var(--pink);}
+  .buy-row{display:flex; gap:8px; align-items:stretch; margin-top:auto;}
+  .qty-picker{display:flex; align-items:center; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--cream);}
+  .qty-picker button{width:30px; border:none; background:var(--pink-soft); color:var(--pink-dark); font-size:17px; font-weight:700; cursor:pointer; font-family:'Poppins',sans-serif;}
+  .qty-picker span{min-width:28px; text-align:center; font-weight:700; font-size:14px; color:var(--choc-900);}
+  .in-cart-note{font-size:11.5px; color:var(--pink-dark); font-weight:600; margin-bottom:6px;}
+  .pick-total{font-size:12.5px; font-weight:600; color:var(--choc); margin-bottom:6px;}
+  .mini-step{width:24px; height:24px; border:1px solid var(--line); background:var(--pink-soft); color:var(--pink-dark); border-radius:6px; font-weight:700; cursor:pointer; line-height:1; font-family:'Poppins',sans-serif;}
+  .item .body{padding:12px 14px 14px; display:flex; flex-direction:column; gap:2px; flex:1;}
+  .item h3{font-size:15.5px; font-weight:600; color:var(--choc-900);}
+  .item .size{font-size:12px; color:var(--muted);}
+  .item .price{font-size:16px; font-weight:700; color:var(--pink-dark); margin:6px 0 10px;}
+  .item .unavail{font-size:12px; color:#b0a29a; font-weight:600; margin:6px 0 10px;}
+  .add-btn{flex:1; background:var(--choc); color:#fff; border:none; padding:10px; border-radius:10px; font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;}
+  .add-btn:hover{background:var(--choc-600);}
+  .stepper{margin-top:auto; display:flex; align-items:center; justify-content:space-between; background:var(--pink-soft); border-radius:10px; padding:4px;}
+  .stepper button{width:38px; height:34px; border:none; border-radius:8px; background:var(--pink); color:#fff; font-size:18px; font-weight:700; cursor:pointer;}
+  .stepper span{font-weight:700; color:var(--choc-900);}
+  .cart-side{flex:1 1 320px; min-width:290px; background:#fff; border:1px solid var(--line); border-radius:16px; padding:20px; position:sticky; top:86px; box-shadow:0 4px 14px rgba(90,45,22,.08);}
+  .cart-side h2{font-size:18px; color:var(--choc-900); margin-bottom:12px;}
+  .cart-line{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; padding:8px 0; border-bottom:1px dashed var(--line);}
+  .cart-line small{color:var(--muted);}
+  .cart-line .rm{background:none; border:none; color:var(--pink-dark); cursor:pointer; font-size:12px; font-family:'Poppins',sans-serif;}
+  .totals{margin-top:14px; font-size:14px;}
+  .totals .row{display:flex; justify-content:space-between; padding:3px 0;}
+  .totals .grand{border-top:2px solid var(--pink-soft); margin-top:8px; padding-top:10px; font-size:17px; font-weight:700; color:var(--choc-900);}
+  .totals .grand span:last-child{color:var(--pink-dark);}
+  .checkout{margin-top:16px;}
+  .checkout input,.checkout textarea{width:100%; padding:11px; margin-bottom:9px; border:1px solid var(--line); border-radius:10px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);}
+  .checkout input:focus,.checkout textarea:focus{outline:2px solid var(--pink-mid); border-color:transparent;}
+  .wa-btn{width:100%; background:#25d366; color:#fff; border:none; padding:14px; border-radius:12px; font-family:'Poppins',sans-serif; font-size:15.5px; font-weight:700; cursor:pointer; box-shadow:0 3px 8px rgba(37,211,102,.35);}
+  .wa-btn:hover{background:#1fb857;}
+  .note{font-size:11.5px; color:var(--muted); text-align:center; margin-top:10px;}
+  .empty{color:var(--muted); font-size:13.5px; text-align:center; padding:14px 0;}
+  footer{background:var(--choc-900); color:#f3d9c8; text-align:center; padding:26px 16px; font-size:13px;}
+  footer .flogo{font-family:'Great Vibes',cursive; font-size:30px; color:#ffd9e4;}
+  footer a{color:var(--pink-mid); text-decoration:none;}
+  .mobile-bar{display:none; position:fixed; left:0; right:0; bottom:0; background:var(--choc-900); color:#fff; padding:12px 16px; z-index:300; justify-content:space-between; align-items:center; box-shadow:0 -3px 12px rgba(0,0,0,.25);}
+  .mobile-bar button{background:var(--pink); color:#fff; border:none; padding:9px 18px; border-radius:20px; font-family:'Poppins',sans-serif; font-weight:600; cursor:pointer;}
+  @media (max-width:760px){
+    .cart-side{position:static; flex:1 1 100%;}
+    .mobile-bar.show{display:flex;}
+    body{padding-bottom:64px;}
+    .logo{font-size:28px;}
+  }
+  /* Admin */
+  #adminView{display:none; max-width:860px; margin:0 auto; padding:24px 16px 60px;}
+  #adminView h2{color:var(--choc-900); font-size:20px; margin-bottom:6px;}
+  #adminView h3{color:var(--choc); font-size:16px; margin:26px 0 10px;}
+  #adminView p{font-size:13px; color:var(--muted);}
+  .panel{background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; margin-top:14px;}
+  .panel input,.panel select{width:100%; padding:10px; margin-bottom:9px; border:1px solid var(--line); border-radius:9px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);}
+  .panel label{font-size:12px; font-weight:600; color:var(--choc); display:block; margin-bottom:3px;}
+  .btn{background:var(--choc); color:#fff; border:none; padding:11px 18px; border-radius:10px; font-family:'Poppins',sans-serif; font-weight:600; cursor:pointer; font-size:13.5px;}
+  .btn.pink{background:var(--pink);}
+  .btn.ghost{background:#fff; color:var(--choc); border:1px solid var(--line);}
+  .btn.small{padding:6px 12px; font-size:12px; border-radius:8px;}
+  .admin-item{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 0; border-bottom:1px dashed var(--line); font-size:13.5px;}
+  .admin-item .acts{display:flex; gap:6px; flex-shrink:0;}
+  .order-card{border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; font-size:13px; background:var(--cream);}
+  .order-card b{color:var(--choc-900);}
+  .order-card select{width:auto; padding:5px; margin:0;}
+  .toast{position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(20px); background:var(--choc-900); color:#fff; padding:11px 20px; border-radius:24px; font-size:13.5px; opacity:0; pointer-events:none; transition:.25s; z-index:500; box-shadow:0 6px 18px rgba(0,0,0,.3); max-width:88vw; text-align:center;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .search-box{max-width:480px; margin:12px auto 6px;}
+  .search-box input{width:100%; padding:12px 18px; border:1px solid var(--line); border-radius:24px; font-family:'Poppins',sans-serif; font-size:14px; background:#fff; box-shadow:0 2px 8px rgba(90,45,22,.07);}
+  .search-box input:focus{outline:2px solid var(--pink-mid); border-color:transparent;}
+  .loc-box{margin-bottom:9px;}
+  .loc-btn{width:100%; padding:11px; background:#fff; border:1.5px dashed var(--pink); color:var(--pink-dark); border-radius:10px; font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;}
+  .loc-btn:hover{background:var(--pink-soft);}
+  #map{height:240px; border-radius:12px; border:1px solid var(--line); margin-top:9px; z-index:1;}
+  .loc-actions{display:flex; gap:8px; margin-top:9px;}
+  .loc-actions .btn{flex:1;}
+  .back-link{display:inline-block; margin-bottom:6px; color:var(--pink-dark); font-size:13px; cursor:pointer; background:none; border:none; font-family:'Poppins',sans-serif;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-in">
+    <div>
+      <div class="logo">Fia's Delights</div>
+      <div class="tagline">Your Daily Dose of Sweetness</div>
+    </div>
+    <button class="admin-link" onclick="openAdmin()">Admin</button>
+  </div>
+</header>
+
+<div id="shopView">
+  <div class="hero">
+    <h1>Homemade with Love in Chiniot</h1>
+    <p>Fresh desserts &amp; savory, made to order at home.</p>
+    <div class="chips">
+      <div class="chip">Delivery <b>Rs. 150</b> in city</div>
+      <div class="chip">Order <b>2 hours</b> in advance</div>
+      <div class="chip">Order on <b>WhatsApp</b></div>
+    </div>
+    <div class="search-box">
+      <input type="text" id="menuSearch" placeholder="Search menu — e.g. brownies, wrap…" oninput="applySearch()">
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="menu-side">
+      <h2 class="cat-title" id="dessertTitle">Dessert Menu</h2>
+      <div class="cat-sub" id="dessertSub">Sweet endings, baked fresh</div>
+      <div class="grid" id="dessertGrid"><p class="empty">Loading menu…</p></div>
+
+      <h2 class="cat-title" id="savoryTitle">Savory Menu</h2>
+      <div class="cat-sub" id="savorySub">Delicious bites, happy vibes</div>
+      <div class="grid" id="savoryGrid"><p class="empty">Loading menu…</p></div>
+      <p class="empty" id="noResults" style="display:none;">No items match your search.</p>
+    </div>
+
+    <div class="cart-side" id="cartBox">
+      <h2>Your Order</h2>
+      <div id="cartItems"><p class="empty">Your cart is empty.</p></div>
+      <div class="totals" id="cartTotals" style="display:none;">
+        <div class="row"><span>Subtotal</span><span id="subTotal">Rs. 0</span></div>
+        <div class="row"><span>Delivery (in city)</span><span>Rs. 150</span></div>
+        <div class="row grand"><span>Total</span><span id="grandTotal">Rs. 0</span></div>
+      </div>
+      <div class="checkout">
+        <input type="text" id="cName" placeholder="Your name" autocomplete="name">
+        <input type="tel" id="cPhone" placeholder="Phone number (03xx-xxxxxxx)" autocomplete="tel">
+        <textarea id="cAddress" rows="2" placeholder="Complete address (Chiniot)"></textarea>
+        <input type="text" id="cLandmark" placeholder="Landmark (optional) — e.g. near Jamia Masjid">
+        <div class="loc-box">
+          <button type="button" class="loc-btn" onclick="toggleMap()">&#128205; Map par location pin karein (optional)</button>
+          <div id="mapWrap" style="display:none;">
+            <div id="map"></div>
+            <div class="loc-actions">
+              <button type="button" class="btn ghost small" onclick="useMyLocation()">Meri current location</button>
+              <button type="button" class="btn ghost small" onclick="clearPin()">Pin hatao</button>
+            </div>
+            <p id="pinInfo" class="note" style="text-align:left;">Pin lagane ke liye map par tap karein — pin ko ghaseet (drag) karke theek jagah par bhi rakh sakte hein.</p>
+          </div>
+        </div>
+        <input type="text" id="cNote" placeholder="Note (optional) — e.g. delivery time">
+        <button class="wa-btn" onclick="checkout()">Order on WhatsApp</button>
+        <p class="note">Your order opens in WhatsApp — just press send there to confirm.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="flogo">Fia's Delights</div>
+    <p style="margin-top:6px;">WhatsApp: <a href="https://wa.me/923457703800">0345 7703800</a></p>
+    <p>Instagram: <a href="https://www.instagram.com/fiasdelights">@fiasdelights</a> &nbsp;•&nbsp; TikTok: <a href="https://www.tiktok.com/@faisdelights">@faisdelights</a></p>
+    <p style="margin-top:8px; color:#c8a68f;">Taste the Happiness — Chiniot</p>
+  </footer>
+</div>
+
+<div class="mobile-bar" id="mobileBar">
+  <div><b id="mbCount">0 items</b> • <span id="mbTotal">Rs. 0</span></div>
+  <button onclick="document.getElementById('cartBox').scrollIntoView({behavior:'smooth'})">View Cart</button>
+</div>
+
+<!-- ================= ADMIN ================= -->
+<div id="adminView">
+  <button class="back-link" onclick="closeAdmin()">← Back to shop</button>
+  <h2>Admin — Fia's Delights</h2>
+  <p>Menu yahan se badlein — change foran har customer ko nazar aayega.</p>
+
+  <div class="panel" id="loginPanel">
+    <label>Admin email</label>
+    <input type="email" id="aEmail" placeholder="you@example.com">
+    <label>Password</label>
+    <input type="password" id="aPass" placeholder="Password">
+    <button class="btn pink" onclick="adminLogin()">Login</button>
+    <p id="loginMsg" style="margin-top:8px;"></p>
+  </div>
+
+  <div id="editorPanel" style="display:none;">
+    <div class="panel">
+      <h3 style="margin-top:0;">Add / Edit Item</h3>
+      <input type="hidden" id="fId">
+      <label>Item name</label>
+      <input type="text" id="fName" placeholder="e.g. Brownies">
+      <label>Size / variant</label>
+      <input type="text" id="fSize" placeholder="e.g. 4 piece (khaali bhi ho sakta hai)">
+      <label>Price (Rs.)</label>
+      <input type="number" id="fPrice" placeholder="e.g. 650" min="0">
+      <label>Category</label>
+      <select id="fCat">
+        <option value="dessert">Dessert</option>
+        <option value="savory">Savory</option>
+      </select>
+      <label>Photo URL (optional)</label>
+      <input type="text" id="fImg" placeholder="https://… (photo ka link)">
+      <label style="display:flex; align-items:center; gap:8px; font-size:13px;"><input type="checkbox" id="fAvail" checked style="width:auto; margin:0;"> Available (customers ko dikhe)</label>
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <button class="btn pink" onclick="saveItem()">Save Item</button>
+        <button class="btn ghost" onclick="clearForm()">Clear</button>
+      </div>
+      <p id="saveMsg" style="margin-top:8px;"></p>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin-top:0;">Menu Items</h3>
+      <div id="adminItems"></div>
+      <div id="seedBox" style="margin-top:14px; display:none;">
+        <p>Database abhi khaali hai. Default menu (13 items) aik click mein daal dein:</p>
+        <button class="btn" onclick="seedMenu()" style="margin-top:8px;">Load Default Menu</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin-top:0;">Recent Orders (website se)</h3>
+      <div id="ordersList"><p>Loading…</p></div>
+    </div>
+
+    <button class="btn ghost" onclick="adminLogout()" style="margin-top:16px;">Logout</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ===== Fia's Delights — UI core (Firebase ke baghair bhi menu foran dikhta hai) ===== */
+const WHATSAPP_NUMBER = "923457703800";
+const DELIVERY = 150;
+
+/* Default menu — menu cards se verify (19 Nov 2026) */
+const DEFAULT_MENU = [
+  { name:"Puddle Cake",        size:"",           price:450,  category:"dessert", imageUrl:"images/puddle-cake.jpg", available:true, sort:1 },
+  { name:"Banana Bread",       size:"2 slices",   price:160,  category:"dessert", imageUrl:"images/banana-bread.jpg", available:true, sort:2 },
+  { name:"Banana Bread",       size:"Full loaf",  price:950,  category:"dessert", imageUrl:"images/banana-bread.jpg", available:true, sort:3 },
+  { name:"Brownies",           size:"4 piece",    price:650,  category:"dessert", imageUrl:"images/brownies.jpg", available:true, sort:4 },
+  { name:"Brownies",           size:"6 piece",    price:1000, category:"dessert", imageUrl:"images/brownies.jpg", available:true, sort:5 },
+  { name:"Brookies",           size:"4 piece",    price:1200, category:"dessert", imageUrl:"images/brookies.jpg", available:true, sort:6 },
+  { name:"Three Milk Cake",    size:"One serving",price:300,  category:"dessert", imageUrl:"images/three-milk-cake.jpg", available:true, sort:7 },
+  { name:"Chicken Cheese Buns",size:"3 piece",    price:700,  category:"savory",  imageUrl:"images/cheese-buns.jpg", available:true, sort:11 },
+  { name:"Chicken Cheese Buns",size:"6 piece",    price:1400, category:"savory",  imageUrl:"images/cheese-buns.jpg", available:true, sort:12 },
+  { name:"Chicken Buns",       size:"3 piece",    price:600,  category:"savory",  imageUrl:"images/chicken-buns.jpg", available:true, sort:13 },
+  { name:"Chicken Buns",       size:"6 piece",    price:1200, category:"savory",  imageUrl:"images/chicken-buns.jpg", available:true, sort:14 },
+  { name:"Chicken Tikka Wrap", size:"1 wrap",     price:450,  category:"savory",  imageUrl:"images/tikka-wrap.jpg", available:true, sort:15 },
+  { name:"Malai Boti Wrap",    size:"1 wrap",     price:550,  category:"savory",  imageUrl:"images/malai-boti-wrap.jpg", available:true, sort:16 }
+];
+
+let menuData = DEFAULT_MENU.map((m,i)=>({ id:"default-"+i, ...m }));
+let cart = {};
+try { cart = JSON.parse(localStorage.getItem("fia_cart") || "{}"); } catch(e){ cart = {}; }
+
+const fmt = n => "Rs. " + Number(n).toLocaleString("en-US");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+/* ===== Menu render ===== */
+function renderMenu(){
+  const dg = document.getElementById("dessertGrid");
+  const sg = document.getElementById("savoryGrid");
+  const items = [...menuData].sort((a,b)=> (a.sort??999) - (b.sort??999) || a.name.localeCompare(b.name));
+  const card = (item) => {
+    const inCart = cart[item.id]?.qty || 0;
+    const pick = pickQty[item.id] || 1;
+    const photo = item.imageUrl
+      ? `<img src="${esc(item.imageUrl)}" alt="${esc(item.name)}" loading="lazy">`
+      : `<span class="initial">${esc(item.name.trim().charAt(0))}</span>`;
+    const action = !item.available
+      ? `<div class="unavail">Not available today</div>`
+      : `<div class="buy-row">
+           <div class="qty-picker"><button onclick="pickChange('${item.id}',-1)">−</button><span id="pick-${item.id}">${pick}</span><button onclick="pickChange('${item.id}',1)">+</button></div>
+           <button class="add-btn" onclick="addPicked('${item.id}')">Add to Cart</button>
+         </div>`;
+    const totalLine = item.available
+      ? `<div class="pick-total" id="ptotal-${item.id}" style="display:${pick > 1 ? "block" : "none"}">Total: ${fmt(item.price * pick)}</div>`
+      : ``;
+    return `<div class="item">
+      <div class="photo">${photo}</div>
+      <div class="body">
+        <h3>${esc(item.name)}</h3>
+        ${item.size ? `<div class="size">${esc(item.size)}</div>` : ``}
+        <div class="price">${fmt(item.price)}</div>
+        ${inCart > 0 ? `<div class="in-cart-note">${inCart} in cart</div>` : ``}
+        ${totalLine}
+        ${action}
+      </div></div>`;
+  };
+  const q = (document.getElementById("menuSearch")?.value || "").trim().toLowerCase();
+  const match = i => !q || (i.name + " " + (i.size||"")).toLowerCase().includes(q);
+  const desserts = items.filter(i=>i.category==="dessert" && match(i));
+  const savory = items.filter(i=>i.category==="savory" && match(i));
+  dg.innerHTML = desserts.length ? desserts.map(card).join("") : (q ? "" : `<p class="empty">No dessert items yet.</p>`);
+  sg.innerHTML = savory.length ? savory.map(card).join("") : (q ? "" : `<p class="empty">No savory items yet.</p>`);
+  const tog = (id, show) => { const el = document.getElementById(id); if(el) el.style.display = show ? "" : "none"; };
+  tog("dessertTitle", !q || desserts.length > 0); tog("dessertSub", !q || desserts.length > 0);
+  tog("savoryTitle", !q || savory.length > 0); tog("savorySub", !q || savory.length > 0);
+  tog("noResults", !!q && desserts.length === 0 && savory.length === 0);
+  renderCart();
+}
+window.applySearch = function(){ renderMenu(); };
+
+/* ===== Quantity picker (Add se pehle tadaad chunna) ===== */
+let pickQty = {};
+window.pickChange = function(id, delta){
+  const next = Math.min(50, Math.max(1, (pickQty[id]||1) + delta));
+  pickQty[id] = next;
+  const el = document.getElementById("pick-"+id);
+  if(el) el.textContent = next;
+  const item = menuData.find(m=>m.id===id);
+  const t = document.getElementById("ptotal-"+id);
+  if(t && item){ t.textContent = "Total: " + fmt(item.price * next); t.style.display = next > 1 ? "block" : "none"; }
+};
+window.addPicked = function(id){
+  const item = menuData.find(m=>m.id===id);
+  if(!item) return;
+  const qty = pickQty[id] || 1;
+  if(!cart[id]) cart[id] = { id, name:item.name, size:item.size||"", price:item.price, qty:0 };
+  cart[id].qty += qty;
+  localStorage.setItem("fia_cart", JSON.stringify(cart));
+  pickQty[id] = 1;
+  toast(qty + " × " + item.name + " cart mein add ho gaya");
+  renderMenu();
+};
+
+/* ===== Cart ===== */
+window.changeQty = function(id, delta){
+  const item = menuData.find(m=>m.id===id);
+  if(!item) return;
+  if(!cart[id]) cart[id] = { id, name:item.name, size:item.size||"", price:item.price, qty:0 };
+  cart[id].qty += delta;
+  if(cart[id].qty <= 0) delete cart[id];
+  localStorage.setItem("fia_cart", JSON.stringify(cart));
+  renderMenu();
+};
+function cartTotals(){
+  let sub = 0, count = 0;
+  Object.values(cart).forEach(i=>{ sub += i.price*i.qty; count += i.qty; });
+  return { sub, count, grand: count ? sub + DELIVERY : 0 };
+}
+function renderCart(){
+  const box = document.getElementById("cartItems");
+  const totals = document.getElementById("cartTotals");
+  const { sub, count, grand } = cartTotals();
+  const entries = Object.values(cart);
+  if(!entries.length){
+    box.innerHTML = `<p class="empty">Your cart is empty.</p>`;
+    totals.style.display = "none";
+  } else {
+    box.innerHTML = entries.map(i=>`
+      <div class="cart-line">
+        <div><b>${esc(i.name)}</b>${i.size?` <small>(${esc(i.size)})</small>`:""}<br>
+        <small>${fmt(i.price)} each</small><br>
+        <span style="display:inline-flex; gap:5px; align-items:center; margin-top:4px;">
+          <button class="mini-step" onclick="changeQty('${i.id}',-1)">−</button><b>${i.qty}</b><button class="mini-step" onclick="changeQty('${i.id}',1)">+</button>
+        </span></div>
+        <div style="text-align:right;">${fmt(i.price*i.qty)}<br><button class="rm" onclick="removeLine('${i.id}')">Remove</button></div>
+      </div>`).join("");
+    document.getElementById("subTotal").textContent = fmt(sub);
+    document.getElementById("grandTotal").textContent = fmt(grand);
+    totals.style.display = "block";
+  }
+  const mb = document.getElementById("mobileBar");
+  document.getElementById("mbCount").textContent = count + (count===1 ? " item" : " items");
+  document.getElementById("mbTotal").textContent = fmt(grand);
+  mb.classList.toggle("show", count > 0);
+}
+window.removeLine = function(id){
+  delete cart[id];
+  localStorage.setItem("fia_cart", JSON.stringify(cart));
+  renderMenu();
+};
+
+/* ===== Location pin (Leaflet + OpenStreetMap — bilkul free, koi key nahi) ===== */
+let pin = null; /* { lat, lng, address } */
+let mapObj = null, markerObj = null;
+window.toggleMap = function(){
+  const w = document.getElementById("mapWrap");
+  const show = w.style.display === "none";
+  w.style.display = show ? "block" : "none";
+  if(show){ initMap(); setTimeout(()=>{ if(mapObj) mapObj.invalidateSize(); }, 200); }
+};
+function initMap(){
+  if(mapObj || typeof L === "undefined") return;
+  mapObj = L.map("map").setView([31.7195, 72.9840], 13); /* Chiniot */
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(mapObj);
+  mapObj.on("click", e => setPin(e.latlng.lat, e.latlng.lng));
+}
+function setPin(lat, lng){
+  pin = { lat: +Number(lat).toFixed(6), lng: +Number(lng).toFixed(6), address: "" };
+  if(markerObj){ markerObj.setLatLng([lat, lng]); }
+  else {
+    markerObj = L.marker([lat, lng], { draggable: true }).addTo(mapObj);
+    markerObj.on("dragend", ()=>{ const p = markerObj.getLatLng(); setPin(p.lat, p.lng); });
+  }
+  document.getElementById("pinInfo").textContent = "Pin lag gaya — address load ho raha hai…";
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${pin.lat}&lon=${pin.lng}`)
+    .then(r=>r.json())
+    .then(d=>{ if(d && d.display_name){ pin.address = d.display_name; } updatePinInfo(); })
+    .catch(updatePinInfo);
+}
+function updatePinInfo(){
+  if(!pin) return;
+  document.getElementById("pinInfo").textContent = "Pinned location: " + (pin.address || (pin.lat + ", " + pin.lng)) + " — yeh location order ke sath jayegi.";
+}
+window.useMyLocation = function(){
+  if(!navigator.geolocation){ toast("Is phone par location support nahi — map par tap karke pin lagadein."); return; }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    initMap();
+    if(!mapObj){ toast("Map abhi load nahi hua — aik lamha ruk kar dobara try karein."); return; }
+    mapObj.setView([pos.coords.latitude, pos.coords.longitude], 16);
+    setPin(pos.coords.latitude, pos.coords.longitude);
+  }, ()=> toast("Location nahi mil saki — map par tap karke pin lagadein."), { enableHighAccuracy: true, timeout: 10000 });
+};
+window.clearPin = function(){
+  pin = null;
+  if(markerObj && mapObj){ mapObj.removeLayer(markerObj); markerObj = null; }
+  document.getElementById("pinInfo").textContent = "Pin lagane ke liye map par tap karein — pin ko ghaseet (drag) karke theek jagah par bhi rakh sakte hein.";
+};
+
+/* ===== Checkout ===== */
+window.checkout = async function(){
+  const entries = Object.values(cart);
+  if(!entries.length){ toast("Cart is empty — pehle kuch add karein."); return; }
+  const name = document.getElementById("cName").value.trim();
+  const phone = document.getElementById("cPhone").value.trim();
+  const address = document.getElementById("cAddress").value.trim();
+  const landmark = document.getElementById("cLandmark").value.trim();
+  const note = document.getElementById("cNote").value.trim();
+  if(!name || !phone || !address){ toast("Name, phone aur address lazmi hein."); return; }
+  const { sub, grand } = cartTotals();
+
+  if(window.__fiaSaveOrder){
+    try {
+      await window.__fiaSaveOrder({
+        customerName:name, phone, address, landmark, note,
+        lat: pin ? pin.lat : null, lng: pin ? pin.lng : null, pinAddress: pin ? (pin.address || "") : "",
+        items: entries.map(i=>({ name:i.name, size:i.size, price:i.price, qty:i.qty })),
+        subtotal: sub, delivery: DELIVERY, total: grand
+      });
+    } catch(e){ /* WhatsApp phir bhi khulega */ }
+  }
+
+  let msg = `*New Order — Fia's Delights*\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n`;
+  if(landmark) msg += `*Landmark:* ${landmark}\n`;
+  if(pin) msg += `*Location (map pin):* https://maps.google.com/?q=${pin.lat},${pin.lng}\n`;
+  if(note) msg += `*Note:* ${note}\n`;
+  msg += `\n*Items:*\n`;
+  entries.forEach(i=>{ msg += `▪️ ${i.qty}× ${i.name}${i.size?` (${i.size})`:""} — ${fmt(i.price*i.qty)}\n`; });
+  msg += `\n*Subtotal:* ${fmt(sub)}\n*Delivery:* ${fmt(DELIVERY)}\n*Total:* *${fmt(grand)}*\n\n(Please confirm my order)`;
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+  toast("WhatsApp khul raha hai — wahan Send dabadein.");
+};
+
+/* ===== Admin (UI) — asal kaam Firebase backend karega ===== */
+window.openAdmin = function(){
+  document.getElementById("shopView").style.display = "none";
+  document.getElementById("mobileBar").style.display = "none";
+  document.getElementById("adminView").style.display = "block";
+  window.scrollTo(0,0);
+};
+window.closeAdmin = function(){
+  document.getElementById("adminView").style.display = "none";
+  document.getElementById("shopView").style.display = "block";
+  document.getElementById("mobileBar").style.display = "";
+  renderMenu();
+};
+function backend(){ return window.__fiaBackend || null; }
+window.adminLogin = async function(){
+  const msg = document.getElementById("loginMsg");
+  const b = backend();
+  if(!b){ msg.textContent = "Setup abhi baqi hai — Firebase connect nahi hua."; return; }
+  const email = document.getElementById("aEmail").value.trim();
+  const pass = document.getElementById("aPass").value;
+  try { await b.login(email, pass); msg.textContent = ""; }
+  catch(e){ msg.textContent = "Login fail: " + e.message; }
+};
+window.adminLogout = async function(){ const b = backend(); if(b) await b.logout(); };
+
+function renderAdmin(){
+  const box = document.getElementById("adminItems");
+  if(!box) return;
+  const items = [...menuData].sort((a,b)=> (a.sort??999) - (b.sort??999));
+  box.innerHTML = items.length ? items.map(i=>`
+    <div class="admin-item">
+      <div><b>${esc(i.name)}</b>${i.size?` <small>(${esc(i.size)})</small>`:""} — ${fmt(i.price)} <small>[${esc(i.category)}${i.available?"":" • hidden"}]</small></div>
+      <div class="acts">
+        <button class="btn ghost small" onclick="editItem('${i.id}')">Edit</button>
+        <button class="btn ghost small" onclick="deleteItem('${i.id}')">Delete</button>
+      </div>
+    </div>`).join("") : `<p>Menu khaali hai.</p>`;
+  document.getElementById("seedBox").style.display = (window.__fiaDbEmpty === true) ? "block" : "none";
+}
+window.editItem = function(id){
+  const i = menuData.find(m=>m.id===id); if(!i) return;
+  document.getElementById("fId").value = id;
+  document.getElementById("fName").value = i.name || "";
+  document.getElementById("fSize").value = i.size || "";
+  document.getElementById("fPrice").value = i.price ?? "";
+  document.getElementById("fCat").value = i.category || "dessert";
+  document.getElementById("fImg").value = i.imageUrl || "";
+  document.getElementById("fAvail").checked = i.available !== false;
+  window.scrollTo(0,0);
+};
+window.clearForm = function(){
+  ["fId","fName","fSize","fPrice","fImg"].forEach(x=>document.getElementById(x).value="");
+  document.getElementById("fAvail").checked = true;
+  document.getElementById("saveMsg").textContent = "";
+};
+window.saveItem = async function(){
+  const msg = document.getElementById("saveMsg");
+  const b = backend();
+  if(!b){ msg.textContent = "Setup baqi hai — Firebase connect nahi hua."; return; }
+  const id = document.getElementById("fId").value;
+  const data = {
+    name: document.getElementById("fName").value.trim(),
+    size: document.getElementById("fSize").value.trim(),
+    price: parseInt(document.getElementById("fPrice").value, 10),
+    category: document.getElementById("fCat").value,
+    imageUrl: document.getElementById("fImg").value.trim(),
+    available: document.getElementById("fAvail").checked
+  };
+  if(!data.name || isNaN(data.price)){ msg.textContent = "Name aur price lazmi hein."; return; }
+  try {
+    await b.saveItem(id, data);
+    msg.textContent = "Save ho gaya ✓";
+    clearForm();
+  } catch(e){ msg.textContent = "Error: " + e.message; }
+};
+window.deleteItem = async function(id){
+  const b = backend();
+  if(!b){ toast("Setup baqi hai — Firebase connect nahi hua."); return; }
+  if(!confirm("Yeh item delete kar dein?")) return;
+  try { await b.deleteItem(id); } catch(e){ toast("Error: " + e.message); }
+};
+window.seedMenu = async function(){
+  const b = backend();
+  if(!b){ toast("Setup baqi hai."); return; }
+  try { await b.seedMenu(DEFAULT_MENU); toast("Default menu load ho gaya ✓"); }
+  catch(e){ toast("Error: " + e.message); }
+};
+window.setOrderStatus = async function(id, status){
+  const b = backend();
+  if(!b) return;
+  try { await b.setOrderStatus(id, status); } catch(e){ toast("Error: " + e.message); }
+};
+
+/* Orders render (backend data bhejta hai) */
+window.__fiaRenderOrders = function(orders){
+  const box = document.getElementById("ordersList");
+  if(!box) return;
+  if(!orders.length){ box.innerHTML = `<p>Abhi koi website order nahi aaya.</p>`; return; }
+  box.innerHTML = orders.map(o=>{
+    const lines = (o.items||[]).map(i=>`${i.qty}× ${esc(i.name)}${i.size?` (${esc(i.size)})`:""}`).join("<br>");
+    return `<div class="order-card">
+      <b>${esc(o.customerName)}</b> — ${esc(o.phone)}<br>
+      <small>${esc(o.address)}${o.landmark?` • Landmark: ${esc(o.landmark)}`:""}${o.note?` • Note: ${esc(o.note)}`:""}</small>
+      ${(o.lat && o.lng) ? `<br><a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" rel="noopener">Customer ki pinned location (map)</a>` : ``}<br>
+      ${lines}<br>
+      <b>Total: ${fmt(o.total||0)}</b> <small>(${esc(o.when||"")})</small><br>
+      Status:
+      <select onchange="setOrderStatus('${o.id}', this.value)">
+        ${["pending","confirmed","delivered","cancelled"].map(s=>`<option value="${s}" ${o.status===s?"selected":""}>${s}</option>`).join("")}
+      </select>
+    </div>`;
+  }).join("");
+};
+
+/* Backend (Firebase) menu bhejta hai to UI refresh */
+window.__fiaSetMenu = function(items){
+  menuData = items;
+  renderMenu(); renderAdmin();
+};
+window.__fiaDefaultMenu = function(){
+  return DEFAULT_MENU.map((m,i)=>({ id:"default-"+i, ...m }));
+};
+
+/* Pehla render — foran, baghair kisi network ke */
+renderMenu(); renderAdmin();
+/* QA / deep-link: #openmap se map khula hua milega */
+if(location.hash === "#openmap"){ setTimeout(()=>{ document.getElementById("cartBox").scrollIntoView(); window.toggleMap(); }, 400); }
+</script>
+
+<script type="module">
+/* ===== Firebase glue — config aane ke baad hi active hoga ===== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDkhvBpvn7InYcBeRonrnaXvkk1iqFy5yY",
+  authDomain: "fias-delights.firebaseapp.com",
+  projectId: "fias-delights",
+  storageBucket: "fias-delights.firebasestorage.app",
+  messagingSenderId: "638048051104",
+  appId: "1:638048051104:web:a52cacf3ff37f3abb58ec5"
+};
+const CONFIGURED = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("YOUR_");
+
+if (CONFIGURED) {
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  /* Menu — real-time */
+  onSnapshot(collection(db, "menu"), (snap) => {
+    window.__fiaDbEmpty = snap.empty;
+    if (!snap.empty) {
+      window.__fiaSetMenu(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } else {
+      window.__fiaSetMenu(window.__fiaDefaultMenu());
+    }
+  }, () => { /* network error par default menu hi rahega */ });
+
+  /* Order save (checkout use karta hai) */
+  window.__fiaSaveOrder = async (order) => {
+    await addDoc(collection(db, "orders"), { ...order, status: "pending", createdAt: serverTimestamp() });
+  };
+
+  /* Admin backend */
+  window.__fiaBackend = {
+    login: (email, pass) => signInWithEmailAndPassword(auth, email, pass),
+    logout: () => signOut(auth),
+    saveItem: async (id, data) => {
+      if (id && !id.startsWith("default-")) { await updateDoc(doc(db, "menu", id), data); }
+      else { data.sort = Date.now() / 1000; await addDoc(collection(db, "menu"), data); }
+    },
+    deleteItem: (id) => deleteDoc(doc(db, "menu", id)),
+    seedMenu: async (items) => { for (const m of items) { await addDoc(collection(db, "menu"), m); } },
+    setOrderStatus: (id, status) => updateDoc(doc(db, "orders", id), { status })
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    document.getElementById("loginPanel").style.display = user ? "none" : "block";
+    document.getElementById("editorPanel").style.display = user ? "block" : "none";
+    if (user) {
+      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"), limit(30));
+      onSnapshot(q, (snap) => {
+        window.__fiaRenderOrders(snap.docs.map(d => {
+          const o = d.data();
+          return { id: d.id, ...o, when: o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString("en-PK") : "" };
+        }));
+      }, () => { document.getElementById("ordersList").innerHTML = "<p>Orders load nahi hue.</p>"; });
+    }
+  });
+}
+</script>
+</body>
+</html>
