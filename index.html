@@ -18,29 +18,36 @@
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{font-family:'Manrope','Poppins',sans-serif; background:var(--cream); color:var(--ink);}
-  header{background:var(--cream); color:var(--choc-900); position:sticky; top:0; z-index:200; border-bottom:1px solid var(--line); box-shadow:0 2px 10px rgba(59,28,13,.06);}
+  header{background:linear-gradient(120deg,#160B06,#241209 60%,#2E170B); color:#FFF3E4; position:sticky; top:0; z-index:200; border-bottom:1px solid rgba(247,168,184,.22); box-shadow:0 2px 14px rgba(22,11,6,.35);}
   .header-in{max-width:1200px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
-  .logo{font-family:'Great Vibes',cursive; font-size:36px; line-height:1; color:var(--pink);}
-  .tagline{font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--choc); margin-top:3px; font-family:'Poppins',sans-serif; font-weight:600;}
+  .logo{font-family:'Great Vibes',cursive; font-size:36px; line-height:1; color:var(--pink-mid);}
+  .tagline{font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-top:3px; font-family:'Poppins',sans-serif; font-weight:600;}
   .order-now{background:var(--pink); color:#fff; border:none; padding:10px 22px; border-radius:999px; font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;}
   .order-now:hover{background:var(--pink-dark);}
   .admin-link{background:transparent; border:1px solid rgba(255,255,255,.5); color:#fff; padding:6px 12px; border-radius:20px; cursor:pointer; font-family:'Poppins',sans-serif; font-size:12px;}
   .admin-link:hover{border-color:var(--pink-mid); color:var(--pink-mid);}
-  .hero{background:linear-gradient(180deg,var(--cream), var(--pink-soft)); border-bottom:1px solid var(--line); padding:26px 16px 14px;}
+  .hero{background:radial-gradient(640px 480px at 88% -10%, rgba(231,84,128,.32), transparent 65%), radial-gradient(560px 460px at -8% 112%, rgba(217,164,65,.20), transparent 65%), linear-gradient(140deg,#160B06,#241209 55%,#2E170B); border-bottom:1px solid rgba(247,168,184,.22); padding:30px 16px 20px; color:#FFF3E4;}
   .hero-in{max-width:1200px; margin:0 auto; display:flex; gap:36px; align-items:center; flex-wrap:wrap;}
   .hero-txt{flex:1 1 420px; min-width:290px;}
-  .eyebrow{display:inline-block; background:#fff; border:1px solid var(--line); color:var(--pink-dark); font-family:'Poppins',sans-serif; font-weight:600; font-size:11px; letter-spacing:2px; padding:6px 13px; border-radius:999px; margin-bottom:14px;}
-  .hero h1{font-family:'Playfair Display',serif; font-weight:700; font-size:42px; line-height:1.15; color:var(--choc-900);}
+  .eyebrow{display:inline-block; background:rgba(255,255,255,.05); border:1px solid rgba(247,168,184,.4); color:var(--pink-mid); font-family:'Poppins',sans-serif; font-weight:600; font-size:11px; letter-spacing:2px; padding:6px 13px; border-radius:999px; margin-bottom:14px;}
+  .hero h1{font-family:'Playfair Display',serif; font-weight:700; font-size:46px; line-height:1.13; color:#FFF3E4;}
   .hero h1 .hl{color:var(--pink);}
-  .hero-txt p{color:var(--muted); font-size:14.5px; line-height:1.6; margin-top:12px; max-width:520px;}
+  .hero-txt p{color:#C9A68C; font-size:14.5px; line-height:1.6; margin-top:12px; max-width:520px;}
   .hero-img{flex:1 1 380px; min-width:290px; position:relative;}
-  .hero-img img{width:100%; height:300px; object-fit:cover; object-position:center 42%; border-radius:150px 150px 20px 20px; border:5px solid #fff; box-shadow:0 18px 40px rgba(59,28,13,.18); display:block;}
-  .hero-badge{position:absolute; left:20px; bottom:22px; background:#fff; border-radius:14px; padding:9px 16px; box-shadow:0 10px 24px rgba(59,28,13,.16);}
-  .hero-badge b{font-family:'Poppins',sans-serif; font-size:13.5px; color:var(--choc-900); display:block;}
-  .hero-badge span{color:var(--pink-dark); font-family:'Poppins',sans-serif; font-weight:700; font-size:13px;}
+  .hero-img img{width:100%; height:320px; object-fit:cover; object-position:center 42%; border-radius:150px 150px 20px 20px; border:1px solid rgba(247,168,184,.35); box-shadow:0 30px 60px rgba(0,0,0,.5); display:block;}
+  .hero-badge{position:absolute; left:20px; bottom:22px; background:rgba(36,18,9,.78); border:1px solid rgba(255,243,228,.18); border-radius:14px; padding:9px 16px; box-shadow:0 14px 30px rgba(0,0,0,.4);}
+  .hero-badge b{font-family:'Poppins',sans-serif; font-size:13.5px; color:#FFF3E4; display:block;}
+  .hero-badge span{color:var(--pink-mid); font-family:'Poppins',sans-serif; font-weight:700; font-size:13px;}
+  .hero-badge2{position:absolute; right:16px; top:18px; background:rgba(36,18,9,.78); border:1px solid rgba(255,243,228,.18); border-radius:14px; padding:9px 16px; box-shadow:0 14px 30px rgba(0,0,0,.4);}
+  .hero-badge2 b{font-family:'Poppins',sans-serif; font-size:13px; color:#FFF3E4; display:block;}
+  .hero-badge2 span{color:var(--gold); font-family:'Poppins',sans-serif; font-weight:600; font-size:12px;}
+  .marquee{background:#160B06; border-bottom:1px solid rgba(247,168,184,.22); overflow:hidden; padding:11px 0;}
+  .marquee-track{display:inline-block; white-space:nowrap; font-family:'Poppins',sans-serif; font-weight:600; letter-spacing:3px; font-size:12px; color:#C9A68C; animation:mq 30s linear infinite;}
+  .marquee-track b{color:var(--pink); font-weight:600;}
+  @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   .chips{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 4px;}
-  .chip{background:#fff; border:1px solid var(--line); border-radius:20px; padding:6px 14px; font-size:12.5px; font-weight:500; color:var(--choc); box-shadow:0 1px 4px rgba(90,45,22,.06);}
-  .chip b{color:var(--pink-dark);}
+  .chip{background:rgba(255,255,255,.05); border:1px solid rgba(247,168,184,.35); border-radius:20px; padding:6px 14px; font-size:12.5px; font-weight:500; color:#FFF3E4;}
+  .chip b{color:var(--gold);}
   .layout{max-width:1200px; margin:0 auto; padding:10px 16px 40px; display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap;}
   .menu-side{flex:1 1 620px; min-width:300px;}
   .cat-title{font-family:'Playfair Display',serif; font-weight:700; font-size:31px; color:var(--choc-900); margin:24px 0 2px;}
@@ -124,8 +131,9 @@
   .order-card select{width:auto; padding:5px; margin:0;}
   .toast{position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(20px); background:var(--choc-900); color:#fff; padding:11px 20px; border-radius:24px; font-size:13.5px; opacity:0; pointer-events:none; transition:.25s; z-index:500; box-shadow:0 6px 18px rgba(0,0,0,.3); max-width:88vw; text-align:center;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-  .search-box{max-width:480px; margin:12px auto 6px;}
-  .search-box input{width:100%; padding:12px 18px; border:1px solid var(--line); border-radius:24px; font-family:'Poppins',sans-serif; font-size:14px; background:#fff; box-shadow:0 2px 8px rgba(90,45,22,.07);}
+  .search-box{max-width:480px; margin:16px auto 6px;}
+  .search-box input{width:100%; padding:12px 18px; border:1px solid rgba(247,168,184,.35); border-radius:24px; font-family:'Poppins',sans-serif; font-size:14px; background:rgba(255,255,255,.06); color:#FFF3E4; box-shadow:0 2px 8px rgba(0,0,0,.25);}
+  .search-box input::placeholder{color:#B08D72;}
   .search-box input:focus{outline:2px solid var(--pink-mid); border-color:transparent;}
   .loc-box{margin-bottom:9px;}
   .loc-btn{width:100%; padding:11px; background:#fff; border:1.5px dashed var(--pink); color:var(--pink-dark); border-radius:10px; font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;}
@@ -179,13 +187,15 @@
       </div>
       <div class="hero-img">
         <img src="images/puddle-cake.jpg" alt="Puddle Cake — Fia's Delights">
-        <div class="hero-badge"><b>Puddle Cake</b><span>Rs. 450</span></div>
+        <div class="hero-badge"><b>Puddle Cake</b><span>Rs. 450 — bestseller</span></div>
+        <div class="hero-badge2"><b>Loyalty Stamps</b><span>10 stamps = surprise gift</span></div>
       </div>
     </div>
     <div class="search-box">
       <input type="text" id="menuSearch" placeholder="Search menu — e.g. brownies, wrap…" oninput="applySearch()">
     </div>
   </div>
+  <div class="marquee"><span class="marquee-track">PUDDLE CAKE <b>✦</b> BROWNIES <b>✦</b> BROOKIES <b>✦</b> THREE MILK CAKE <b>✦</b> MALAI BOTI WRAP <b>✦</b> CHICKEN CHEESE BUNS <b>✦</b> BANANA BREAD <b>✦</b> PUDDLE CAKE <b>✦</b> BROWNIES <b>✦</b> BROOKIES <b>✦</b> THREE MILK CAKE <b>✦</b> MALAI BOTI WRAP <b>✦</b> CHICKEN CHEESE BUNS <b>✦</b> BANANA BREAD <b>✦</b>&nbsp;</span></div>
 
   <div class="layout">
     <div class="menu-side">
