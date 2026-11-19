@@ -212,6 +212,12 @@
   </div>
 
   <div id="editorPanel" style="display:none;">
+    <div class="panel" id="seedBox" style="display:none; border:2px dashed var(--pink); background:#fff0f4;">
+      <h3 style="margin-top:0;">⚠ Menu abhi database mein save NAHI hai</h3>
+      <p>Neeche jo menu list nazar aa rahi hai woh sirf is phone par hai. Asal database mein daalne ke liye yeh button dabayein — sirf aik dafa:</p>
+      <button class="btn pink" id="seedBtn" onclick="seedMenu()" style="margin-top:8px;">Load Default Menu (13 items)</button>
+    </div>
+
     <div class="panel">
       <h3 style="margin-top:0;">Add / Edit Item</h3>
       <input type="hidden" id="fId">
@@ -239,10 +245,6 @@
     <div class="panel">
       <h3 style="margin-top:0;">Menu Items</h3>
       <div id="adminItems"></div>
-      <div id="seedBox" style="margin-top:14px; display:none;">
-        <p>Database abhi khaali hai. Default menu (13 items) aik click mein daal dein:</p>
-        <button class="btn" onclick="seedMenu()" style="margin-top:8px;">Load Default Menu</button>
-      </div>
     </div>
 
     <div class="panel">
@@ -573,8 +575,10 @@ window.deleteItem = async function(id){
 window.seedMenu = async function(){
   const b = backend();
   if(!b){ toast("Setup baqi hai."); return; }
+  const btn = document.getElementById("seedBtn");
+  if(btn){ btn.disabled = true; btn.textContent = "Loading… (13 items)"; }
   try { await b.seedMenu(DEFAULT_MENU); toast("Default menu load ho gaya ✓"); }
-  catch(e){ toast("Error: " + e.message); }
+  catch(e){ toast("Error: " + e.message); if(btn){ btn.disabled = false; btn.textContent = "Load Default Menu (13 items)"; } }
 };
 window.setOrderStatus = async function(id, status){
   const b = backend();
