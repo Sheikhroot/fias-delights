@@ -65,6 +65,10 @@
   .totals .row{display:flex; justify-content:space-between; padding:3px 0;}
   .totals .grand{border-top:2px solid var(--pink-soft); margin-top:8px; padding-top:10px; font-size:17px; font-weight:700; color:var(--choc-900);}
   .totals .grand span:last-child{color:var(--pink-dark);}
+  .pay-box{margin-top:14px; border:2px dashed #2f9e44; background:#eafaf0; border-radius:12px; padding:12px 14px;}
+  .pay-title{font-weight:700; color:#1e7a34; font-size:14px;}
+  .pay-name{font-size:13.5px; margin-top:2px;}
+  .pay-num{font-size:19px; font-weight:700; letter-spacing:.5px; color:var(--choc-900); margin:2px 0 8px;}
   .checkout{margin-top:16px;}
   .checkout input,.checkout textarea{width:100%; padding:11px; margin-bottom:9px; border:1px solid var(--line); border-radius:10px; font-family:'Poppins',sans-serif; font-size:13.5px; background:var(--cream);}
   .checkout input:focus,.checkout textarea:focus{outline:2px solid var(--pink-mid); border-color:transparent;}
@@ -160,6 +164,13 @@
         <div class="row"><span>Delivery (in city)</span><span>Rs. 150</span></div>
         <div class="row grand"><span>Total</span><span id="grandTotal">Rs. 0</span></div>
       </div>
+      <div class="pay-box">
+        <div class="pay-title">Payment — Easypaisa</div>
+        <div class="pay-name">Ameer Umar Chaman</div>
+        <div class="pay-num">0345 7703800</div>
+        <button type="button" class="btn ghost small" onclick="copyEasypaisa()">Copy number</button>
+        <p class="note" style="text-align:left; margin-top:6px;">Order ke baad payment is Easypaisa number par bhej dein.</p>
+      </div>
       <div class="checkout">
         <input type="text" id="cName" placeholder="Your name" autocomplete="name">
         <input type="tel" id="cPhone" placeholder="Phone number (03xx-xxxxxxx)" autocomplete="tel">
@@ -186,6 +197,7 @@
   <footer>
     <div class="flogo">Fia's Delights</div>
     <p style="margin-top:6px;">WhatsApp: <a href="https://wa.me/923457703800">0345 7703800</a></p>
+    <p>Easypaisa: Ameer Umar Chaman — 0345 7703800</p>
     <p>Instagram: <a href="https://www.instagram.com/fiasdelights">@fiasdelights</a> &nbsp;•&nbsp; TikTok: <a href="https://www.tiktok.com/@faisdelights">@faisdelights</a></p>
     <p style="margin-top:8px; color:#c8a68f;">Taste the Happiness — Chiniot</p>
   </footer>
@@ -462,6 +474,12 @@ window.clearPin = function(){
 };
 
 /* ===== Checkout ===== */
+window.copyEasypaisa = function(){
+  const num = "03457703800";
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(num).then(()=>toast("Easypaisa number copy ho gaya ✓")).catch(()=>toast(num));
+  } else { toast(num); }
+};
 window.checkout = async function(){
   const entries = Object.values(cart);
   if(!entries.length){ toast("Cart is empty — pehle kuch add karein."); return; }
